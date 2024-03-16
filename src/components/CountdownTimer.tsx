@@ -22,11 +22,11 @@ export default function CountdownTimer() {
 			// find next prayer
 			const today = state.todayTimetable;
 			const prayers = [
-				{ name: "Fajr", time: today.Fajr, timeLeft: -1 },
-				{ name: "Zuhr", time: today.Zuhr, timeLeft: -1 },
-				{ name: "Asr", time: today.Asr, timeLeft: -1 },
-				{ name: "Maghrib", time: today.Maghrib, timeLeft: -1 },
-				{ name: "Isha", time: today.Isha, timeLeft: -1 },
+				{ name: "Fajr", time: today["Fajr J"], timeLeft: -1 },
+				{ name: "Zuhr", time: today["Zuhr J"], timeLeft: -1 },
+				{ name: "Asr", time: today["Asr J"], timeLeft: -1 },
+				{ name: "Maghrib", time: today["Maghrib J"], timeLeft: -1 },
+				{ name: "Isha", time: today["Isha J"], timeLeft: -1 },
 			];
 
 			const nextPrayer = prayers.find((prayer) => {
@@ -39,7 +39,6 @@ export default function CountdownTimer() {
 
 	useEffect(() => {
 		if (nextPrayer) {
-			console.log("setting interval");
 			const interval = setInterval(() => {
 				const time = moment(nextPrayer.time, "hh:mm");
 				const now = moment();
