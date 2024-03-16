@@ -13,6 +13,29 @@ class DatabaseHandler {
 
 		return response.json();
 	}
+
+	public async getHadith(): Promise<string> {
+		const response = await fetch(
+			`https://masjidsolutions.com/ms/api/getHadith/${this.externalId}`
+		);
+
+		return response.json();
+	}
+
+	public async setHadith(hadith: string): Promise<string> {
+		const response = await fetch(
+			`https://masjidsolutions.com/ms/api/setHadith/${this.externalId}`,
+			{
+				method: "POST", // or 'PUT'
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ hadith }), // body data type must match "Content-Type" header
+			}
+		);
+
+		return response.json();
+	}
 }
 
 export default DatabaseHandler;
