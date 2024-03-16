@@ -9,6 +9,7 @@ import Date from "../components/Date";
 import CountdownTimer from "../components/CountdownTimer";
 import DatabaseHandler from "../modules/DatabaseHandler";
 import IData from "../interfaces/IData";
+import Hadith from "../components/Hadith";
 
 const sxPortrait = {};
 
@@ -71,7 +72,7 @@ export default function Main() {
 							xs={columnWidth}
 							sx={isLandscape ? sxLandscape : sxPortrait}
 						>
-							<h1>Hadith of the day</h1>
+							<Hadith />
 						</Grid>
 					</Grid>
 					<Grid item xs={12}>
