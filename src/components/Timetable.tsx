@@ -1,7 +1,6 @@
 import { Grid, Typography } from "@mui/material";
 
 import { useAppState } from "../providers/state";
-import { useEffect } from "react";
 
 export function Timetable() {
 	const { state } = useAppState();
@@ -9,6 +8,7 @@ export function Timetable() {
 
 	const rowSX = {
 		padding: "10px 0px",
+		borderRadius: "20px",
 	};
 
 	const isNextPrayer = (prayer: string) => {
@@ -20,6 +20,11 @@ export function Timetable() {
 		const style = isNextPrayer(prayer)
 			? { ...rowSX, backgroundColor: "#a30000", borderRadius: "20px" }
 			: { ...rowSX };
+
+		if ("Jumu'ah" === prayer) {
+			const style = { ...rowSX, backgroundColor: "white", color: "black" };
+			return style;
+		}
 
 		return style;
 	};
@@ -108,6 +113,18 @@ export function Timetable() {
 				</Grid>
 				<Grid item xs={3}>
 					<Typography variant="h6">{tomoTimetable?.["Isha J"]}</Typography>
+				</Grid>
+			</Grid>
+			<Grid item container xs={12} sx={rowStyles("Jumu'ah")}>
+				<Grid item xs={6}>
+					<Typography sx={{ color: "black" }} variant="h6">
+						Khutbah
+					</Typography>
+				</Grid>
+				<Grid item xs={6}>
+					<Typography variant="h6" sx={{ color: "black" }}>
+						{todayTimetable?.["Khutbah J"]}
+					</Typography>
 				</Grid>
 			</Grid>
 		</Grid>
