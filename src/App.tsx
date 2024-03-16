@@ -1,26 +1,43 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { ThemeProvider, createTheme } from "@mui/material";
+import BaseRoutes from "./routes/BaseRoutes";
+import { ThemeOptions } from "@mui/material/styles";
+import { AppStateProvider } from "./providers/state";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+export default function App() {
+	const theme: ThemeOptions = createTheme({
+		components: {
+			MuiTableCell: {
+				styleOverrides: {
+					root: {
+						border: "none",
+						textAlign: "center",
+						fontSize: "33px",
+						fontWeight: "bold",
+						color: "white",
+					},
+				},
+			},
+			MuiTypography: {
+				styleOverrides: {
+					h6: {
+						color: "white",
+						fontSize: "33px",
+						textAlign: "center",
+						fontWeight: "bold",
+					},
+					root: {
+						color: "white",
+					},
+				},
+			},
+		},
+	});
+
+	return (
+		<AppStateProvider>
+			<ThemeProvider theme={theme}>
+				<BaseRoutes />
+			</ThemeProvider>
+		</AppStateProvider>
+	);
 }
-
-export default App;
