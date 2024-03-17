@@ -36,6 +36,14 @@ class DatabaseHandler {
 
 		return response.json();
 	}
+
+	public async getBanner(): Promise<string> {
+		const response = await fetch(
+			`https://masjidsolutions.com/ms/api/getBanner/${this.externalId}`
+		);
+
+		return response.json();
+	}
 }
 
 export default DatabaseHandler;

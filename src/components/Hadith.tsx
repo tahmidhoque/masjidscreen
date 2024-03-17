@@ -17,6 +17,7 @@ export default function Hadith() {
 
 		fetchHadith().then((hadith) => {
 			if (!hadith) return;
+			setHadith(hadith);
 			setState({
 				...state,
 				hadith,
@@ -24,17 +25,12 @@ export default function Hadith() {
 		});
 	}, []);
 
-	useEffect(() => {
-		console.log(state.hadith);
-		setHadith(state.hadith);
-	}, [state.hadith]);
-
 	return (
 		<Box sx={{ textAlign: "center" }}>
 			<Typography variant="h2" sx={{ margin: "20px" }}>
 				Hadith of the Day
 			</Typography>
-			<Typography variant="h6">{hadith && "No Hadith Set"}</Typography>
+			<Typography variant="h6">{hadith}</Typography>
 		</Box>
 	);
 }

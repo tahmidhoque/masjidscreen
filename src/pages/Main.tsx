@@ -10,6 +10,7 @@ import CountdownTimer from "../components/CountdownTimer";
 import DatabaseHandler from "../modules/DatabaseHandler";
 import IData from "../interfaces/IData";
 import Hadith from "../components/Hadith";
+import Banner from "../components/Banner";
 
 const sxPortrait = {};
 
@@ -79,7 +80,7 @@ export default function Main() {
 						<CountdownTimer />
 					</Grid>
 					<Grid item xs={12} sx={{ height: "10vh", alignSelf: "flex-end" }}>
-						<h1> Banner</h1>
+						<Banner />
 					</Grid>
 				</Grid>
 			)}
