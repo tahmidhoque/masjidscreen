@@ -17,6 +17,7 @@ const AppStateContext = createContext<AppStateContextType | undefined>(
 );
 
 interface AppState {
+	isUserLoggedIn: boolean;
 	timetableData: IData[] | null;
 	todayTimetable: IData | null;
 	tomoTimetable: IData | null;
@@ -27,13 +28,15 @@ interface AppState {
 
 export function AppStateProvider({ children }: { children: React.ReactNode }) {
 	const [state, setState] = useState<AppState>({
+		isUserLoggedIn:
+			localStorage.getItem("authenticated") === "true" ? true : false,
 		todayTimetable: null,
 		tomoTimetable: null,
 		nextPrayer: null,
 		hadithOfTheDay: null,
 		bannerMessage: null,
 		timetableData: null,
-	}); // replace 'any' and null with your initial state
+	});
 
 	return (
 		<AppStateContext.Provider value={{ state, setState }}>

@@ -1,5 +1,5 @@
 import { ThemeProvider, createTheme } from "@mui/material";
-import BaseRoutes from "./routes/BaseRoutes";
+import Routes from "./routes/Routes";
 import { ThemeOptions } from "@mui/material/styles";
 import { AppStateProvider } from "./providers/state";
 
@@ -27,6 +27,10 @@ export default function App() {
 					},
 					root: {
 						color: "white",
+						cursor: "default",
+						"&:focus": {
+							outline: "none",
+						},
 					},
 				},
 			},
@@ -36,7 +40,7 @@ export default function App() {
 	return (
 		<AppStateProvider>
 			<ThemeProvider theme={theme}>
-				<BaseRoutes />
+				<Routes />
 			</ThemeProvider>
 		</AppStateProvider>
 	);
