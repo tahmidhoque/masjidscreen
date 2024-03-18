@@ -17,40 +17,11 @@ const sxPortrait = {};
 const sxLandscape = {};
 
 export default function Main() {
-	const { state, setState } = useAppState();
-	const [isLoading, setIsLoading] = useState(false);
+	const { state } = useAppState();
+	const isLoading = state.isLoading;
 	const { orientation } = useScreenOrientation();
 	const isLandscape = orientation === "landscape-primary";
 	const columnWidth = isLandscape ? 6 : 12;
-	const database = new DatabaseHandler();
-
-	useEffect(() => {
-		const fetchData = async () => {
-			setIsLoading(true);
-			const data = await database.getTimetable();
-			return data;
-		};
-
-		fetchData().then((data) => {
-			const timetableData = data as IData[];
-			//find today's timetable
-			const today = moment().format("MM/DD/YYYY");
-			const tomorrow = moment().add(1, "days").format("MM/DD/YYYY");
-			const todaysPrayer = timetableData.find(
-				(item: IData) => item.Date === today
-			);
-			const tomorrowsPrayer = timetableData.find(
-				(item: IData) => item.Date === tomorrow
-			);
-			setState({
-				...state,
-				timetableData,
-				todayTimetable: todaysPrayer,
-				tomoTimetable: tomorrowsPrayer,
-			});
-			setIsLoading(false);
-		});
-	}, []);
 
 	return (
 		<>

@@ -44,6 +44,14 @@ class DatabaseHandler {
 
 		return response.json();
 	}
+
+	public async getAllData(): Promise<any> {
+		const response = await fetch(
+			`https://masjidsolutions.com/ms/api/getAllData/${this.externalId}`
+		);
+
+		return response.json();
+	}
 }
 
 export default DatabaseHandler;
