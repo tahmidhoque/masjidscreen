@@ -2,8 +2,8 @@ import { Navigate, Route, Routes as Switch } from "react-router-dom";
 import { PageWrapper } from "../components/PageWrapper";
 import Login from "../pages/Login";
 import Main from "../pages/Main";
-import Settings from "../pages/Settings";
 import { useAppState } from "../providers/state";
+import SettingsRoutes from "./SettingsRoutes";
 
 function ProtectedRoute({ children }: { children: JSX.Element }) {
 	const { state } = useAppState();
@@ -24,10 +24,10 @@ export default function Routes() {
 				<Route path="/" element={<Main />} />
 				<Route path="/login" element={<Login />} />
 				<Route
-					path="/settings"
+					path="/settings/*"
 					element={
 						<ProtectedRoute>
-							<Settings />
+							<SettingsRoutes />
 						</ProtectedRoute>
 					}
 				/>
