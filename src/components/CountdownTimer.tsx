@@ -3,6 +3,31 @@ import { useAppState } from "../providers/state";
 import moment from "moment";
 import { Box, Grid } from "@mui/material";
 
+const getPrayerTime = (today: any, tomorrow: any) => {
+	const next = Object.keys(today).find((key) => {
+		return (
+			key.charAt(key.length - 1) === "J" &&
+			moment().isBefore(moment(today[key], "hh:mm"))
+		);
+	});
+
+	if (next) {
+		return {
+			name: next.slice(0, -2),
+			time: today[next],
+			timeLeft: -1,
+			tomorrow: false,
+		};
+	} else {
+		return {
+			name: "Fajr",
+			time: tomorrow["Fajr J"],
+			timeLeft: -1,
+			tomorrow: true,
+		};
+	}
+};
+
 export default function CountdownTimer() {
 	const { state, setState } = useAppState();
 	const [timeLeft, setTimeLeft] = useState("");
@@ -11,6 +36,7 @@ export default function CountdownTimer() {
 				name: string;
 				time: any;
 				timeLeft: number;
+				tomorrow: boolean;
 		  }
 		| undefined
 	>();
@@ -20,27 +46,27 @@ export default function CountdownTimer() {
 		if (!state.nextPrayer) {
 			console.log("finding next prayer");
 			// find next prayer
-			const today = state.todayTimetable;
-			const prayers = [
-				{ name: "Fajr", time: today["Fajr J"], timeLeft: -1 },
-				{ name: "Zuhr", time: today["Zuhr J"], timeLeft: -1 },
-				{ name: "Asr", time: today["Asr J"], timeLeft: -1 },
-				{ name: "Maghrib", time: today["Maghrib J"], timeLeft: -1 },
-				{ name: "Isha", time: today["Isha J"], timeLeft: -1 },
-			];
 
-			const nextPrayer = prayers.find((prayer) => {
-				return moment(prayer.time, "hh:mm").isAfter(moment());
-			});
+			const nextPrayer = getPrayerTime(
+				state.todayTimetable,
+				state.tomoTimetable
+			);
 			setNextPrayer(nextPrayer);
 			setState({ ...state, nextPrayer });
 		}
-	}, [state.nextPrayer, state.todayTimetable, state.tomorrowTimetable]);
+	}, []);
 
 	useEffect(() => {
 		if (nextPrayer) {
 			const interval = setInterval(() => {
+				if (nextPrayer.timeLeft === 0) {
+					clearInterval(interval);
+				}
 				const time = moment(nextPrayer.time, "hh:mm");
+				if (nextPrayer.tomorrow) {
+					time.add(1, "day");
+				}
+
 				const now = moment();
 
 				const timeLeftMinutes = time.diff(now, "minutes") % 60;
