@@ -15,14 +15,22 @@ function ProtectedRoute({ children }: { children: JSX.Element }) {
 }
 
 export default function Routes() {
-	const { state } = useAppState();
+	const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+
 	return (
-		<PageWrapper
-			navbar={!state.isUserLoggedIn && window.location.pathname !== "/screen"}
-		>
+		<PageWrapper>
 			<Switch>
 				<Route path="/" element={<Main />} />
-				<Route path="/login" element={<Login />} />
+				<Route
+					path="/login"
+					element={
+						isLoggedIn ? <Navigate replace to={"/settings"} /> : <Login />
+					}
+				/>
+				<Route
+					path="/settings"
+					element={<Navigate to="/settings/upload-timetable" replace />}
+				/>
 				<Route
 					path="/settings/*"
 					element={
@@ -31,9 +39,6 @@ export default function Routes() {
 						</ProtectedRoute>
 					}
 				/>
-				{/* <Route path="/login" element={<App />} />
-			<Route path="/hadith" element={<App />} />
-			<Route path="/upload-timetable" element={<App />} /> */}
 			</Switch>
 		</PageWrapper>
 	);
