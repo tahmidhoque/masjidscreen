@@ -9,6 +9,7 @@ import React, {
 import IData from "../interfaces/IData";
 import DatabaseHandler from "../modules/DatabaseHandler";
 import moment from "moment";
+import { getPrayerTime } from "../components/CountdownTimer";
 
 interface AppStateContextType {
 	state: any; // replace 'any' with the type of your state
@@ -24,7 +25,14 @@ interface AppState {
 	timetableData: IData[] | null | Promise<unknown> | undefined;
 	todayTimetable: IData | null | undefined;
 	tomoTimetable: IData | null | undefined;
-	nextPrayer: { prayerName: string; start: string; jamaat: string } | null;
+	nextPrayer: {
+		name: string;
+		time: string;
+		timeLeft: string;
+		tomorrow: boolean;
+		jamaat: string;
+		jamaatTimeLeft: string;
+	} | null;
 	hadithOfTheDay: string | null;
 	bannerMessage: string | null;
 	isLoading: boolean;
@@ -44,7 +52,6 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
 	});
 
 	const getDatafromDatabase = async () => {
-		console.log("getting data");
 		const database = new DatabaseHandler();
 		const data = await database.getAllData();
 		const timetableData = JSON.parse(data.timetable) as IData[];
@@ -58,6 +65,8 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
 			(item: IData) => item.Date === tomorrow
 		);
 
+		const nextPrayer = getPrayerTime(todaysPrayer, tomorrowsPrayer);
+
 		setState({
 			...state,
 			timetableData: timetableData,
@@ -65,6 +74,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
 			bannerMessage: data.banner,
 			todayTimetable: todaysPrayer,
 			tomoTimetable: tomorrowsPrayer,
+			nextPrayer: nextPrayer,
 			isLoading: false,
 		});
 	};

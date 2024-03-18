@@ -3,12 +3,10 @@ import useScreenOrientation from "../hooks/useScreenOrientation";
 import { Timetable } from "../components/Timetable";
 import Clock from "../components/Clock";
 import { useAppState } from "../providers/state";
-import { useEffect, useState } from "react";
-import moment from "moment";
+
 import Date from "../components/Date";
 import CountdownTimer from "../components/CountdownTimer";
-import DatabaseHandler from "../modules/DatabaseHandler";
-import IData from "../interfaces/IData";
+
 import Hadith from "../components/Hadith";
 import Banner from "../components/Banner";
 
