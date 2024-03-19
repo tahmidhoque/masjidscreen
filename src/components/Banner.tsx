@@ -1,29 +1,11 @@
-import { Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import Marquee from "react-fast-marquee";
 import { useAppState } from "../providers/state";
 import { useEffect, useState } from "react";
-import DatabaseHandler from "../modules/DatabaseHandler";
 
 export default function Banner() {
 	const { state, setState } = useAppState();
-	const [banner, setBanner] = useState("");
-
-	useEffect(() => {
-		const fetchBanner = async () => {
-			const database = new DatabaseHandler();
-			const banner = await database.getBanner();
-			return banner;
-		};
-
-		fetchBanner().then((banner) => {
-			if (!banner) return;
-			setBanner(banner);
-			setState({
-				...state,
-				banner,
-			});
-		});
-	}, []);
+	const [banner, setBanner] = useState(state.bannerMessage);
 
 	useEffect(() => {
 		if (!state.banner) return;
@@ -35,7 +17,12 @@ export default function Banner() {
 		<>
 			{banner && (
 				<Marquee>
-					<Typography variant="h6">{banner}</Typography>
+					<Box
+						component={"div"}
+						dangerouslySetInnerHTML={{
+							__html: banner,
+						}}
+					></Box>
 				</Marquee>
 			)}
 		</>

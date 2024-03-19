@@ -69,16 +69,21 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
 		const nextPrayer = getPrayerTime(todaysPrayer, tomorrowsPrayer);
 		const decoder = new TextDecoder();
 		const hadith = JSON.parse(data.hadith);
+		const banner = JSON.parse(data.banner);
+		const bannerArray = Object.keys(banner).map(function (_) {
+			return banner[_];
+		});
 		const array = Object.keys(hadith).map(function (_) {
 			return hadith[_];
 		});
+		const bannerBinArray = new Uint8Array(bannerArray);
 		const hadithArray = new Uint8Array(array);
 
 		setState({
 			...state,
 			timetableData: timetableData,
 			hadithOfTheDay: decoder.decode(hadithArray),
-			bannerMessage: data.banner,
+			bannerMessage: decoder.decode(bannerBinArray),
 			todayTimetable: todaysPrayer,
 			tomoTimetable: tomorrowsPrayer,
 			nextPrayer: nextPrayer,

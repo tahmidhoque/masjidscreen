@@ -1,10 +1,9 @@
-import { Box, Button, Divider, Grid, Typography } from "@mui/material";
+import { Box, Button, Divider, Typography } from "@mui/material";
+import { Color } from "@tiptap/extension-color";
 import TextAlign from "@tiptap/extension-text-align";
 import TextStyle from "@tiptap/extension-text-style";
-import { Color } from "@tiptap/extension-color";
 import StarterKit from "@tiptap/starter-kit";
 import {
-	ColorPickerPopperBody,
 	MenuButtonAlignCenter,
 	MenuButtonAlignJustify,
 	MenuButtonAlignLeft,
@@ -23,7 +22,7 @@ import {
 	RichTextEditor,
 	type RichTextEditorRef,
 } from "mui-tiptap";
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { useAppState } from "../../providers/state";
 
 import DatabaseHandler from "../../modules/DatabaseHandler";
@@ -32,8 +31,6 @@ import "../../styles/wysiwyg.css";
 export default function EditHadith(): JSX.Element {
 	const { state } = useAppState();
 	const rteRef = useRef<RichTextEditorRef>(null);
-	const [color, setColor] = useState<string>("#000000");
-	const [colorPopper, setColorPopper] = useState<boolean>(false);
 
 	const handleSave = async () => {
 		const db = new DatabaseHandler();
