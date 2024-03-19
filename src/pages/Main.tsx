@@ -25,7 +25,12 @@ export default function Main() {
 		<>
 			{isLoading ? (
 				<Box
-					sx={{ height: "100vh", display: "flex", justifyContent: "center" }}
+					sx={{
+						height: "100vh",
+						display: "flex",
+						justifyContent: "center",
+						alignItems: "center",
+					}}
 				>
 					<CircularProgress size={"10vh"} />
 				</Box>

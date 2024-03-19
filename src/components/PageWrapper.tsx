@@ -2,6 +2,7 @@ import { Box } from "@mui/material";
 import { ReactNode } from "react";
 import Navbar from "./Navbar";
 import { useAppState } from "../providers/state";
+import { motion } from "framer-motion";
 
 export const PageWrapper = ({ children }: { children: ReactNode }) => {
 	const { state } = useAppState();
@@ -9,7 +10,7 @@ export const PageWrapper = ({ children }: { children: ReactNode }) => {
 	const showNavbar =
 		state.isUserLoggedIn &&
 		(window.location.pathname.includes("/settings") ||
-			window.location.pathname === "/login");
+			window.location.pathname !== "/login");
 
 	const padding = showNavbar ? 3 : 0;
 	return (
@@ -38,7 +39,24 @@ export const PageWrapper = ({ children }: { children: ReactNode }) => {
 				</Box>
 			)}
 			<Box component="main" sx={{ padding: padding, flexGrow: 1 }}>
-				<Box sx={{ overflow: "auto", height: "100%" }}>{children}</Box>
+				<motion.div
+					initial="initial"
+					animate="in"
+					exit="out"
+					variants={{
+						initial: { opacity: 0 },
+						in: { opacity: 1 },
+						out: { opacity: 0 },
+					}}
+					transition={{
+						type: "tween",
+						ease: "anticipate",
+						duration: 3,
+					}}
+					style={{ height: "100%" }}
+				>
+					<Box sx={{ overflow: "auto", height: "100%" }}>{children}</Box>
+				</motion.div>
 			</Box>
 		</Box>
 	);

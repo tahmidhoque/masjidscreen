@@ -15,7 +15,6 @@ export default function Login() {
 	const navigate = useNavigate();
 
 	const handleLogin = () => {
-		console.log(process.env.REACT_APP_PASSWORD, password);
 		if (password === process.env.REACT_APP_PASSWORD) {
 			localStorage.setItem("authenticated", "true");
 			setState({
@@ -59,13 +58,6 @@ export default function Login() {
 							flexDirection: "column",
 						}}
 					>
-						{/* <TextField
-							id="outlined-basic"
-							label="Username"
-							InputLabelProps={{ style: { color: "white" } }}
-							variant="filled"
-							sx={fieldStyle}
-						/> */}
 						<TextField
 							id="outlined-basic"
 							label="Password"

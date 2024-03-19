@@ -2,6 +2,7 @@ import { ThemeProvider, createTheme } from "@mui/material";
 import Routes from "./routes/Routes";
 import { ThemeOptions } from "@mui/material/styles";
 import { AppStateProvider } from "./providers/state";
+import { AnimatePresence } from "framer-motion";
 
 export default function App() {
 	const theme: ThemeOptions = createTheme({
@@ -39,9 +40,11 @@ export default function App() {
 
 	return (
 		<AppStateProvider>
-			<ThemeProvider theme={theme}>
-				<Routes />
-			</ThemeProvider>
+			<AnimatePresence mode="wait">
+				<ThemeProvider theme={theme}>
+					<Routes />
+				</ThemeProvider>
+			</AnimatePresence>
 		</AppStateProvider>
 	);
 }

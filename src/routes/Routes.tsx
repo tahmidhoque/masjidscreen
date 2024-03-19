@@ -4,6 +4,9 @@ import Login from "../pages/Login";
 import Main from "../pages/Main";
 import { useAppState } from "../providers/state";
 import SettingsRoutes from "./SettingsRoutes";
+import CountdownPage from "../pages/CountdownPage";
+import Jamaat from "../pages/Jamaat";
+import Adhaan from "../pages/Adhaan";
 
 function ProtectedRoute({ children }: { children: JSX.Element }) {
 	const { state } = useAppState();
@@ -38,6 +41,16 @@ export default function Routes() {
 							<SettingsRoutes />
 						</ProtectedRoute>
 					}
+				/>
+				<Route
+					path="/adhaan-countdown"
+					element={<CountdownPage title={"Adhaan"} />}
+				/>
+				<Route path="/adhaan" element={<Adhaan />} />
+				<Route path="/jamaat" element={<Jamaat />} />
+				<Route
+					path="jamaat-countdown"
+					element={<CountdownPage title="Jamaa'at" />}
 				/>
 			</Switch>
 		</PageWrapper>

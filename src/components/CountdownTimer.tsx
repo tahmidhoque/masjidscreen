@@ -18,6 +18,7 @@ export const getPrayerTime = (today: any, tomorrow: any) => {
 				return true;
 			}
 		}
+		return false;
 	});
 
 	const next = Object.keys(today).find((key) => {
@@ -51,7 +52,15 @@ export const formatTime = (time: number) => {
 	return `${time < 0 ? "00" : time < 10 ? `0${time}` : time}`;
 };
 
-export default function CountdownTimer() {
+export default function CountdownTimer({
+	hideLabel,
+	fontSize = "2rem",
+	hide,
+}: {
+	hide?: boolean;
+	hideLabel?: boolean;
+	fontSize?: string;
+}) {
 	const { state, setState } = useAppState();
 	const [timeLeft, setTimeLeft] = useState("");
 	const [nextPrayer, setNextPrayer] = useState<
@@ -67,6 +76,12 @@ export default function CountdownTimer() {
 		| undefined
 	>(state.nextPrayer);
 	const navigate = useNavigate();
+
+	//if page refreshes need to get nextprayer
+	useEffect(() => {
+		if (!state) return;
+		setNextPrayer(state.nextPrayer);
+	}, [state]);
 
 	useEffect(() => {
 		if (nextPrayer) {
@@ -101,8 +116,6 @@ export default function CountdownTimer() {
 				) {
 					navigate("/adhaan-countdown");
 				}
-
-				console.log(nextPrayer);
 
 				if (
 					nextPrayer.jamaatTimeLeft === "00:00:00" &&
@@ -178,16 +191,24 @@ export default function CountdownTimer() {
 	}, [nextPrayer]);
 
 	return (
-		<Grid container spacing={2} sx={{ color: "white", width: "100%" }}>
-			<Grid item xs={12} sx={{ textAlign: "center" }}>
-				<Box sx={{ fontSize: "2rem" }}>
-					Time Till {nextPrayer?.name}{" "}
-					{nextPrayer?.countingJamaat ? "Jamaa'at" : ""}{" "}
-				</Box>
-			</Grid>
-			<Grid item xs={12} sx={{ textAlign: "center" }}>
-				<Box sx={{ fontSize: "2rem" }}>{timeLeft}</Box>
-			</Grid>
-		</Grid>
+		<>
+			{!hide && (
+				<Grid container spacing={2} sx={{ color: "white", width: "100%" }}>
+					{!hideLabel && (
+						<Grid item xs={12} sx={{ textAlign: "center" }}>
+							<Box sx={{ fontSize: fontSize }}>
+								Time Till {nextPrayer?.name}{" "}
+								{nextPrayer?.countingJamaat ? "Jamaa'at" : ""}{" "}
+							</Box>
+						</Grid>
+					)}
+					<Grid item xs={12} sx={{ textAlign: "center" }}>
+						<Box sx={{ fontSize: fontSize, fontWeight: "bold" }}>
+							{timeLeft}
+						</Box>
+					</Grid>
+				</Grid>
+			)}
+		</>
 	);
 }
