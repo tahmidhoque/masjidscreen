@@ -13,7 +13,7 @@ export default function Hadith() {
 	}, []);
 
 	return (
-		<Box sx={{ textAlign: "center" }}>
+		<Box sx={{ textAlign: "center", paddingX: 10 }}>
 			<Typography variant="h2" sx={{ margin: "20px" }}>
 				Hadith of the Day
 			</Typography>

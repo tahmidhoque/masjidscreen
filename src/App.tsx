@@ -8,6 +8,15 @@ import "./styles/App.css";
 
 export default function App() {
 	let theme: Theme = createTheme({
+		palette: {
+			primary: {
+				main: "#FFF5F0",
+			},
+			secondary: {
+				main: "#A30000",
+			},
+		},
+
 		components: {
 			MuiTableCell: {
 				styleOverrides: {
