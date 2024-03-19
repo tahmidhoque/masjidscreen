@@ -10,7 +10,6 @@ import IData from "../interfaces/IData";
 import DatabaseHandler from "../modules/DatabaseHandler";
 import moment from "moment";
 import { getPrayerTime } from "../components/CountdownTimer";
-import e from "express";
 
 interface AppStateContextType {
 	state: any; // replace 'any' with the type of your state
@@ -80,7 +79,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
 		const hadithArray = new Uint8Array(array);
 
 		setState({
-			...state,
+			isUserLoggedIn: state.isUserLoggedIn,
 			timetableData: timetableData,
 			hadithOfTheDay: decoder.decode(hadithArray),
 			bannerMessage: decoder.decode(bannerBinArray),
@@ -93,6 +92,9 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
 
 	useEffect(() => {
 		getDatafromDatabase();
+		const interval = setInterval(() => getDatafromDatabase(), 1000 * 60 * 20);
+
+		return () => clearInterval(interval);
 	}, []);
 
 	return (

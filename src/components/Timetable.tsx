@@ -1,10 +1,21 @@
 import { Grid, Typography } from "@mui/material";
 
 import { useAppState } from "../providers/state";
+import { useEffect, useState } from "react";
 
 export function Timetable() {
 	const { state } = useAppState();
-	const { todayTimetable, tomoTimetable } = state;
+	const [todayTimetable, setTodayTimetable] = useState(state.todayTimetable);
+	const [tomoTimetable, setTomoTimetable] = useState(state.tomoTimetable);
+
+	useEffect(() => {
+		if (state.todayTimetable) {
+			setTodayTimetable(state.todayTimetable);
+		}
+		if (state.tomoTimetable) {
+			setTomoTimetable(state.tomoTimetable);
+		}
+	}, [state]);
 
 	const rowSX = {
 		padding: "10px 0px",

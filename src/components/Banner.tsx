@@ -4,14 +4,16 @@ import { useAppState } from "../providers/state";
 import { useEffect, useState } from "react";
 
 export default function Banner() {
-	const { state, setState } = useAppState();
+	const { state } = useAppState();
 	const [banner, setBanner] = useState(state.bannerMessage);
 
+	useEffect(() => {}, [state]);
+
 	useEffect(() => {
-		if (!state.banner) return;
-		setBanner(state.banner);
-		console.log(state.banner);
-	}, [state.banner]);
+		if (!state.bannerMessage) return;
+		setBanner(state.bannerMessage);
+		console.log(state.bannerMessage);
+	}, [state.bannerMessage]);
 
 	return (
 		<>

@@ -10,7 +10,7 @@ export default function Hadith() {
 		if (state.hadithOfTheDay) {
 			setHadith(state.hadithOfTheDay);
 		}
-	}, []);
+	}, [state.hadithOfTheDay]);
 
 	return (
 		<Box sx={{ textAlign: "center", paddingX: 10 }}>
