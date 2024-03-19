@@ -10,8 +10,6 @@ export const PageWrapper = ({ children }: { children: ReactNode }) => {
 	const showNavbar =
 		state.isUserLoggedIn && window.location.pathname.includes("/settings");
 
-	const padding = showNavbar ? 3 : 0;
-	const paddingTop = showNavbar ? 0 : 3;
 	return (
 		<Box
 			sx={{
