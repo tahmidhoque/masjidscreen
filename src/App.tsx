@@ -1,11 +1,13 @@
 import { ThemeProvider, createTheme } from "@mui/material";
 import Routes from "./routes/Routes";
-import { ThemeOptions } from "@mui/material/styles";
+import { Theme, responsiveFontSizes } from "@mui/material/styles";
 import { AppStateProvider } from "./providers/state";
 import { AnimatePresence } from "framer-motion";
 
+import "./styles/App.css";
+
 export default function App() {
-	const theme: ThemeOptions = createTheme({
+	let theme: Theme = createTheme({
 		components: {
 			MuiTableCell: {
 				styleOverrides: {
@@ -37,6 +39,8 @@ export default function App() {
 			},
 		},
 	});
+
+	theme = responsiveFontSizes(theme);
 
 	return (
 		<AppStateProvider>

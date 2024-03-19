@@ -10,6 +10,7 @@ import IData from "../interfaces/IData";
 import DatabaseHandler from "../modules/DatabaseHandler";
 import moment from "moment";
 import { getPrayerTime } from "../components/CountdownTimer";
+import e from "express";
 
 interface AppStateContextType {
 	state: any; // replace 'any' with the type of your state
@@ -66,11 +67,17 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
 		);
 
 		const nextPrayer = getPrayerTime(todaysPrayer, tomorrowsPrayer);
+		const decoder = new TextDecoder();
+		const hadith = JSON.parse(data.hadith);
+		const array = Object.keys(hadith).map(function (_) {
+			return hadith[_];
+		});
+		const hadithArray = new Uint8Array(array);
 
 		setState({
 			...state,
 			timetableData: timetableData,
-			hadithOfTheDay: data.hadith,
+			hadithOfTheDay: decoder.decode(hadithArray),
 			bannerMessage: data.banner,
 			todayTimetable: todaysPrayer,
 			tomoTimetable: tomorrowsPrayer,

@@ -8,9 +8,7 @@ export const PageWrapper = ({ children }: { children: ReactNode }) => {
 	const { state } = useAppState();
 
 	const showNavbar =
-		state.isUserLoggedIn &&
-		(window.location.pathname.includes("/settings") ||
-			window.location.pathname !== "/login");
+		state.isUserLoggedIn && window.location.pathname.includes("/settings");
 
 	const padding = showNavbar ? 3 : 0;
 	return (

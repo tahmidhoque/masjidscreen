@@ -1,28 +1,15 @@
 import { useEffect, useState } from "react";
-import DatabaseHandler from "../modules/DatabaseHandler";
 import { useAppState } from "../providers/state";
 import { Box, Typography } from "@mui/material";
 
 export default function Hadith() {
-	const { state, setState } = useAppState();
+	const { state } = useAppState();
 	const [hadith, setHadith] = useState("");
 
 	useEffect(() => {
-		const fetchHadith = async () => {
-			const database = new DatabaseHandler();
-			const hadith = await database.getHadith();
-
-			return hadith;
-		};
-
-		fetchHadith().then((hadith) => {
-			if (!hadith) return;
-			setHadith(hadith);
-			setState({
-				...state,
-				hadith,
-			});
-		});
+		if (state.hadithOfTheDay) {
+			setHadith(state.hadithOfTheDay);
+		}
 	}, []);
 
 	return (
@@ -30,7 +17,12 @@ export default function Hadith() {
 			<Typography variant="h2" sx={{ margin: "20px" }}>
 				Hadith of the Day
 			</Typography>
-			<Typography variant="h6">{hadith}</Typography>
+			<Box
+				component={"div"}
+				dangerouslySetInnerHTML={{
+					__html: hadith,
+				}}
+			></Box>
 		</Box>
 	);
 }
