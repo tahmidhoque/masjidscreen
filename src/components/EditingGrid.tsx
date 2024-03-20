@@ -199,7 +199,7 @@ export default function EditingGrid() {
 						onStateChange={(newState) => {
 							const rows = newState.rows.dataRowIdToModelLookup;
 							const dataArray = convertData(rows);
-							// setTableData(newState.rows);
+							setTableData(newState.rows);
 						}}
 						columns={columns}
 						getRowId={(row) => {
@@ -207,7 +207,6 @@ export default function EditingGrid() {
 						}}
 						editMode="row"
 						rowModesModel={rowModesModel}
-						onRowEditStart={}
 						onRowModesModelChange={handleRowModesModelChange}
 						onRowEditStop={handleRowEditStop}
 						processRowUpdate={processRowUpdate}
