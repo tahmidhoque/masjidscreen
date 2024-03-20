@@ -5,6 +5,7 @@ import { AppStateProvider } from "./providers/state";
 import { AnimatePresence } from "framer-motion";
 
 import "./styles/App.css";
+import { BrowserRouter } from "react-router-dom";
 
 export default function App() {
 	let theme: Theme = createTheme({
@@ -66,13 +67,20 @@ export default function App() {
 
 	theme = responsiveFontSizes(theme);
 
+	const baseName = () => {
+		const split = window.location.pathname.split("/");
+		return `/${split[1]}/${split[2]}`;
+	};
+
 	return (
-		<AppStateProvider>
-			<AnimatePresence mode="wait">
-				<ThemeProvider theme={theme}>
-					<Routes />
-				</ThemeProvider>
-			</AnimatePresence>
-		</AppStateProvider>
+		<BrowserRouter basename={baseName()}>
+			<AppStateProvider>
+				<AnimatePresence mode="wait">
+					<ThemeProvider theme={theme}>
+						<Routes />
+					</ThemeProvider>
+				</AnimatePresence>
+			</AppStateProvider>
+		</BrowserRouter>
 	);
 }

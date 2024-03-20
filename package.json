@@ -1,76 +1,77 @@
 {
-  "name": "masjidscreen",
-  "version": "0.1.0",
-  "private": true,
-  "dependencies": {
-    "@emotion/react": "^11.11.4",
-    "@emotion/styled": "^11.11.0",
-    "@mui/icons-material": "^5.15.13",
-    "@mui/material": "^5.15.13",
-    "@mui/x-data-grid": "^6.19.6",
-    "@mui/x-data-grid-generator": "^6.19.6",
-    "@testing-library/jest-dom": "^5.17.0",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/user-event": "^13.5.0",
-    "@tiptap/core": "^2.2.4",
-    "@tiptap/extension-color": "^2.2.4",
-    "@tiptap/extension-heading": "^2.2.4",
-    "@tiptap/extension-image": "^2.2.4",
-    "@tiptap/extension-table": "^2.2.4",
-    "@tiptap/extension-text-align": "^2.2.4",
-    "@tiptap/pm": "^2.2.4",
-    "@tiptap/react": "^2.2.4",
-    "@tiptap/starter-kit": "^2.0.0-beta.189",
-    "@types/jest": "^27.5.2",
-    "@types/react": "^18.2.52",
-    "@types/react-dom": "^18.2.18",
-    "dompurify": "^3.0.9",
-    "framer-motion": "^11.0.14",
-    "moment": "^2.30.1",
-    "moment-hijri": "^2.1.2",
-    "mui-tiptap": "^1.8.6",
-    "mysql": "^2.18.1",
-    "mysql2": "^3.9.2",
-    "papaparse": "^5.4.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-fast-marquee": "^1.6.4",
-    "react-papaparse": "^4.4.0",
-    "react-router-dom": "^6.22.0",
-    "react-scripts": "5.0.1",
-    "typescript": "^4.9.5",
-    "url": "^0.11.3",
-    "web-vitals": "^2.1.4"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "devDependencies": {
-    "@types/dompurify": "^3.0.5",
-    "@types/moment-hijri": "^2.1.4",
-    "@types/mysql": "^2.15.26",
-    "@types/node": "^20.11.28",
-    "@types/papaparse": "^5.3.14"
-  }
+	"name": "masjidscreen",
+	"version": "0.1.0",
+	"private": true,
+	"dependencies": {
+		"@emotion/react": "^11.11.4",
+		"@emotion/styled": "^11.11.0",
+		"@mui/icons-material": "^5.15.13",
+		"@mui/material": "^5.15.13",
+		"@mui/x-data-grid": "^6.19.6",
+		"@mui/x-data-grid-generator": "^6.19.6",
+		"@testing-library/jest-dom": "^5.17.0",
+		"@testing-library/react": "^13.4.0",
+		"@testing-library/user-event": "^13.5.0",
+		"@tiptap/core": "^2.2.4",
+		"@tiptap/extension-color": "^2.2.4",
+		"@tiptap/extension-heading": "^2.2.4",
+		"@tiptap/extension-image": "^2.2.4",
+		"@tiptap/extension-table": "^2.2.4",
+		"@tiptap/extension-text-align": "^2.2.4",
+		"@tiptap/pm": "^2.2.4",
+		"@tiptap/react": "^2.2.4",
+		"@tiptap/starter-kit": "^2.0.0-beta.189",
+		"@types/jest": "^27.5.2",
+		"@types/react": "^18.2.52",
+		"@types/react-dom": "^18.2.18",
+		"dompurify": "^3.0.9",
+		"framer-motion": "^11.0.14",
+		"moment": "^2.30.1",
+		"moment-hijri": "^2.1.2",
+		"mui-tiptap": "^1.8.6",
+		"mysql": "^2.18.1",
+		"mysql2": "^3.9.2",
+		"papaparse": "^5.4.1",
+		"react": "^18.2.0",
+		"react-dom": "^18.2.0",
+		"react-fast-marquee": "^1.6.4",
+		"react-papaparse": "^4.4.0",
+		"react-router-dom": "^6.22.0",
+		"react-scripts": "5.0.1",
+		"typescript": "^4.9.5",
+		"url": "^0.11.3",
+		"web-vitals": "^2.1.4"
+	},
+	"scripts": {
+		"start": "react-scripts start",
+		"build": "react-scripts build",
+		"test": "react-scripts test",
+		"eject": "react-scripts eject"
+	},
+	"eslintConfig": {
+		"extends": [
+			"react-app",
+			"react-app/jest"
+		]
+	},
+	"browserslist": {
+		"production": [
+			">0.2%",
+			"not dead",
+			"not op_mini all"
+		],
+		"development": [
+			"last 1 chrome version",
+			"last 1 firefox version",
+			"last 1 safari version"
+		]
+	},
+	"devDependencies": {
+		"@types/dompurify": "^3.0.5",
+		"@types/moment-hijri": "^2.1.4",
+		"@types/mysql": "^2.15.26",
+		"@types/node": "^20.11.28",
+		"@types/papaparse": "^5.3.14"
+	},
+	"homepage": "."
 }
