@@ -196,11 +196,6 @@ export default function EditingGrid() {
 					<DataGrid
 						rows={tableData}
 						apiRef={apiRef}
-						onStateChange={(newState) => {
-							const rows = newState.rows.dataRowIdToModelLookup;
-							const dataArray = convertData(rows);
-							setTableData(newState.rows);
-						}}
 						columns={columns}
 						getRowId={(row) => {
 							return row.id;
