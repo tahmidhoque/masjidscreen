@@ -78,11 +78,6 @@ const Drawer = styled(MuiDrawer, {
 	}),
 }));
 
-const Divider = styled(MuiDivider)(({ theme }) => ({
-	margin: theme.spacing(2),
-	backgroundColor: theme.palette.background.paper,
-}));
-
 export default function SideNav() {
 	const navigate = useNavigate();
 	const location = useLocation();

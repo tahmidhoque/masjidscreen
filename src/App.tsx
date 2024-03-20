@@ -29,6 +29,21 @@ export default function App() {
 					},
 				},
 			},
+			MuiFormControlLabel: {
+				styleOverrides: {
+					label: {
+						color: "black",
+					},
+				},
+			},
+			MuiListItemText: {
+				styleOverrides: {
+					primary: {
+						color: "black",
+					},
+				},
+			},
+
 			MuiTypography: {
 				styleOverrides: {
 					h6: {

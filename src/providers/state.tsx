@@ -22,7 +22,7 @@ const AppStateContext = createContext<AppStateContextType | undefined>(
 
 interface AppState {
 	isUserLoggedIn: boolean;
-	timetableData: IData[] | null | Promise<unknown> | undefined;
+	timetableData: IData[] | null | undefined;
 	todayTimetable: IData | null | undefined;
 	tomoTimetable: IData | null | undefined;
 	nextPrayer: {
@@ -36,6 +36,7 @@ interface AppState {
 	hadithOfTheDay: string | null;
 	bannerMessage: string | null;
 	isLoading: boolean;
+	removePastDates: boolean;
 }
 
 export function AppStateProvider({ children }: { children: React.ReactNode }) {
@@ -49,7 +50,36 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
 		bannerMessage: null,
 		timetableData: null,
 		isLoading: true,
+		removePastDates: false,
 	});
+
+	useEffect(() => {
+		if (!state.timetableData) return;
+		//state.timetable has been updated so we need to find today's timetable
+		//and tomorrow's timetable incase they've changed
+		const today = moment().format("MM/DD/YYYY");
+		const tomorrow = moment().add(1, "days").format("MM/DD/YYYY");
+		const todaysPrayer = state.timetableData.find(
+			(item: IData) => item.Date === today
+		);
+		const tomorrowsPrayer = state.timetableData.find(
+			(item: IData) => item.Date === tomorrow
+		);
+
+		const nextPrayer = getPrayerTime(todaysPrayer, tomorrowsPrayer);
+
+		setState({
+			isUserLoggedIn: state.isUserLoggedIn,
+			timetableData: state.timetableData,
+			hadithOfTheDay: state.hadithOfTheDay,
+			bannerMessage: state.bannerMessage,
+			todayTimetable: todaysPrayer,
+			tomoTimetable: tomorrowsPrayer,
+			nextPrayer: nextPrayer,
+			isLoading: false,
+			removePastDates: state.removePastDates,
+		});
+	}, [state.timetableData]);
 
 	const getDatafromDatabase = async () => {
 		const database = new DatabaseHandler();
@@ -87,6 +117,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
 			tomoTimetable: tomorrowsPrayer,
 			nextPrayer: nextPrayer,
 			isLoading: false,
+			removePastDates: state.removePastDates,
 		});
 	};
 
