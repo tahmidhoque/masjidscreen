@@ -69,6 +69,7 @@ export default function App() {
 
 	const baseName = () => {
 		const split = window.location.pathname.split("/");
+		if (split.length < 3) return "/";
 		return `/${split[1]}/${split[2]}`;
 	};
 

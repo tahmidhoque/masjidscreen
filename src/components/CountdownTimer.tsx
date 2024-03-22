@@ -193,7 +193,7 @@ export default function CountdownTimer({
 	return (
 		<>
 			{!hide && (
-				<Grid container spacing={2} sx={{ color: "white", width: "100%" }}>
+				<Grid container spacing={0} sx={{ color: "white", width: "100%" }}>
 					{!hideLabel && (
 						<Grid item xs={12} sx={{ textAlign: "center" }}>
 							<Box sx={{ fontSize: fontSize }}>

@@ -45,7 +45,11 @@ export default function Main() {
 						<Grid
 							item
 							xs={columnWidth}
-							sx={isLandscape ? sxLandscape : sxPortrait}
+							sx={
+								isLandscape
+									? { ...sxLandscape, height: "min-content" }
+									: { ...sxPortrait, height: "min-content" }
+							}
 						>
 							<Hadith />
 						</Grid>
