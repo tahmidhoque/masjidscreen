@@ -13,6 +13,7 @@ import {
 	GridRowsProp,
 	GridSlotsComponentsProps,
 	GridToolbarContainer,
+	GridValidRowModel,
 } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
 import { useAppState } from "../providers/state";
@@ -21,6 +22,7 @@ import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 import DatabaseHandler from "../modules/DatabaseHandler";
 import { useGridApiRef } from "@mui/x-data-grid";
+import IData from "../interfaces/IData";
 
 const timeWidth = 60;
 
@@ -29,6 +31,10 @@ interface EditToolbarProps {
 	setRowModesModel: (
 		newModel: (oldModel: GridRowModesModel) => GridRowModesModel
 	) => void;
+}
+
+interface ExtendedIData extends IData {
+	id: GridRowId;
 }
 
 function EditToolbar(props: EditToolbarProps) {
@@ -57,7 +63,7 @@ function EditToolbar(props: EditToolbarProps) {
 			},
 		]);
 
-		setRowModesModel((oldModel: any) => ({
+		setRowModesModel((oldModel) => ({
 			...oldModel,
 			[id]: { mode: GridRowModes.Edit, fieldToFocus: "Date" },
 		}));
@@ -74,13 +80,15 @@ function EditToolbar(props: EditToolbarProps) {
 
 export default function EditingGrid() {
 	const { state, setState } = useAppState();
-	const [tableData, setTableData] = useState(state.timetableData);
+	const [tableData, setTableData] = useState<ExtendedIData[] | null>(
+		state.timetableData?.map(data => ({ ...data, id: data.Date })) || null
+	);
 	const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
 	const apiRef = useGridApiRef();
 
 	useEffect(() => {
 		if (!state.timetableData) return;
-		setTableData(state.timetableData);
+		setTableData(state.timetableData.map(data => ({ ...data, id: data.Date })));
 	}, [state.timetableData]);
 
 	const columns: GridColDef[] = [
@@ -124,11 +132,13 @@ export default function EditingGrid() {
 		},
 	];
 
-	const convertData = (data: { [key: string]: any }): any[] => {
-		return Object.keys(data).map(function (_) {
-			return data[_];
+	const convertData = (data: { [key: string]: GridValidRowModel }): IData[] => {
+		return Object.values(data).map(row => {
+			const { id, isNew, ...rest } = row;
+			return rest as IData;
 		});
 	};
+
 	const CustomFooterStatusComponent = (
 		props: NonNullable<GridSlotsComponentsProps["footer"]>
 	) => {
@@ -138,11 +148,12 @@ export default function EditingGrid() {
 					color="secondary"
 					variant="contained"
 					onClick={() => {
+						if (!tableData) return;
 						const rows = apiRef.current.state.rows.dataRowIdToModelLookup;
 						const dataArray = convertData(rows);
 						const db = new DatabaseHandler();
 						db.setTimetable(dataArray);
-						setState({ ...state, timetableData: tableData });
+						setState({ ...state, timetableData: dataArray });
 					}}
 				>
 					Save
@@ -153,13 +164,8 @@ export default function EditingGrid() {
 	};
 
 	const handleDeleteClick = (id: GridRowId) => () => {
-		const removedRow = tableData.filter(
-			(row: { id: GridRowId; Date: GridRowId }) => {
-				console.log(id !== row.Date);
-				console.log(row.id !== id || row.Date !== id);
-				return row.id !== id || row.Date !== id;
-			}
-		);
+		if (!tableData) return;
+		const removedRow = tableData.filter((row) => row.id !== id);
 		setTableData(removedRow);
 	};
 
@@ -177,9 +183,11 @@ export default function EditingGrid() {
 	};
 
 	const processRowUpdate = (newRow: GridRowModel) => {
-		const updatedRow = { ...newRow, isNew: false };
+		const { isNew, ...rowWithoutIsNew } = newRow;
+		const updatedRow = rowWithoutIsNew as ExtendedIData;
+		if (!tableData) return updatedRow;
 		setTableData(
-			tableData.map((row: { id: any }) =>
+			tableData.map((row) =>
 				row.id === newRow.id ? updatedRow : row
 			)
 		);
@@ -197,9 +205,7 @@ export default function EditingGrid() {
 						rows={tableData}
 						apiRef={apiRef}
 						columns={columns}
-						getRowId={(row) => {
-							return row.id;
-						}}
+						getRowId={(row) => row.id}
 						editMode="row"
 						rowModesModel={rowModesModel}
 						onRowModesModelChange={handleRowModesModelChange}

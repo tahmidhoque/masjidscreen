@@ -1,12 +1,23 @@
-import { Grid, Typography } from "@mui/material";
+import { Grid, Typography, Box } from "@mui/material";
 
 import { useAppState } from "../providers/state";
 import { useEffect, useState } from "react";
+import useResponsiveSize from "../hooks/useResponsiveSize";
+import useScreenOrientation from "../hooks/useScreenOrientation";
+import IData from "../interfaces/IData";
+
+type PrayerInfo = {
+	name: string;
+	key: keyof Pick<IData, "Fajr" | "Zuhr" | "Asr" | "Maghrib" | "Isha">;
+};
 
 export function Timetable() {
 	const { state } = useAppState();
 	const [todayTimetable, setTodayTimetable] = useState(state.todayTimetable);
 	const [tomoTimetable, setTomoTimetable] = useState(state.tomoTimetable);
+	const responsiveSizes = useResponsiveSize();
+	const { orientation } = useScreenOrientation();
+	const isLandscape = orientation === "landscape-primary";
 
 	useEffect(() => {
 		if (state.todayTimetable) {
@@ -18,8 +29,11 @@ export function Timetable() {
 	}, [state]);
 
 	const rowSX = {
-		padding: "10px 0px",
+		padding: responsiveSizes.spacing.xs,
 		borderRadius: "20px",
+		minHeight: isLandscape ? "8vh" : "6vh",
+		display: "flex",
+		alignItems: "center",
 	};
 
 	const isNextPrayer = (prayer: string) => {
@@ -29,116 +43,71 @@ export function Timetable() {
 
 	const rowStyles = (prayer: string) => {
 		const style = isNextPrayer(prayer)
-			? { ...rowSX, backgroundColor: "#a30000", borderRadius: "20px" }
+			? { ...rowSX, backgroundColor: "#a30000" }
 			: { ...rowSX };
 
 		if ("Jumu'ah" === prayer) {
-			const style = { ...rowSX, backgroundColor: "white", color: "black" };
-			return style;
+			return { ...rowSX, backgroundColor: "white", color: "black" };
 		}
 
 		return style;
 	};
 
+	const cellStyles = {
+		display: "flex",
+		justifyContent: "center",
+		alignItems: "center",
+		padding: responsiveSizes.spacing.xs,
+	};
+
+	const prayers: PrayerInfo[] = [
+		{ name: "Fajr", key: "Fajr" },
+		{ name: "Zuhr", key: "Zuhr" },
+		{ name: "Asr", key: "Asr" },
+		{ name: "Maghrib", key: "Maghrib" },
+		{ name: "Isha", key: "Isha" },
+	];
+
 	return (
-		<Grid container>
-			<Grid item container xs={12}>
-				<Grid item xs={3} alignSelf={"center"}>
-					<Typography variant="h6">Prayer</Typography>
+		<Box sx={{ width: "100%" }}>
+			<Grid container spacing={1}>
+				<Grid item container xs={12} sx={rowSX}>
+					<Grid item xs={3} sx={cellStyles}>
+						<Typography variant="h6">Prayer</Typography>
+					</Grid>
+					<Grid item xs={3} sx={cellStyles}>
+						<Typography variant="h6">Start</Typography>
+					</Grid>
+					<Grid item xs={3} sx={cellStyles}>
+						<Typography variant="h6">Jamaa'at</Typography>
+					</Grid>
+					<Grid item xs={3} sx={cellStyles}>
+						<Typography variant="h6">Tomorrow</Typography>
+					</Grid>
 				</Grid>
-				<Grid item xs={3} alignSelf={"center"}>
-					<Typography variant="h6">Start</Typography>
-				</Grid>
-				<Grid item xs={3} alignSelf={"center"}>
-					<Typography variant="h6">Jamaa'at</Typography>
-				</Grid>
-				<Grid item xs={3} alignSelf={"center"}>
-					<Typography variant="h6">Tomorrow's Jamaa'at</Typography>
-				</Grid>
+
+				{prayers.map((prayer) => (
+					<Grid key={prayer.key} item container xs={12} sx={rowStyles(prayer.key)}>
+						<Grid item xs={3} sx={cellStyles}>
+							<Typography variant="h6">{prayer.name}</Typography>
+						</Grid>
+						<Grid item xs={3} sx={cellStyles}>
+							<Typography variant="h6">{todayTimetable?.[prayer.key]}</Typography>
+						</Grid>
+						<Grid item xs={3} sx={cellStyles}>
+							<Typography variant="h6">
+								{todayTimetable?.[`${prayer.key} J` as keyof IData]}
+							</Typography>
+						</Grid>
+						<Grid item xs={3} sx={cellStyles}>
+							<Typography variant="h6">
+								{tomoTimetable?.[`${prayer.key} J` as keyof IData]}
+							</Typography>
+						</Grid>
+					</Grid>
+				))}
 			</Grid>
-			<Grid item container xs={12} sx={rowStyles("Fajr")}>
-				<Grid item xs={3} alignSelf={"center"}>
-					<Typography variant="h6">Fajr</Typography>
-				</Grid>
-				<Grid item xs={3} alignSelf={"center"}>
-					<Typography variant="h6">{todayTimetable?.Fajr}</Typography>
-				</Grid>
-				<Grid item xs={3} alignSelf={"center"}>
-					<Typography variant="h6">{todayTimetable?.["Fajr J"]}</Typography>
-				</Grid>
-				<Grid item xs={3} alignSelf={"center"}>
-					<Typography variant="h6">{tomoTimetable?.["Fajr J"]}</Typography>
-				</Grid>
-			</Grid>
-			<Grid item container xs={12} sx={rowStyles("Zuhr")}>
-				<Grid item xs={3} alignSelf={"center"}>
-					<Typography variant="h6">Zuhr</Typography>
-				</Grid>
-				<Grid item xs={3} alignSelf={"center"}>
-					<Typography variant="h6">{todayTimetable?.Zuhr}</Typography>
-				</Grid>
-				<Grid item xs={3} alignSelf={"center"}>
-					<Typography variant="h6">{todayTimetable?.["Zuhr J"]}</Typography>
-				</Grid>
-				<Grid item xs={3} alignSelf={"center"}>
-					<Typography variant="h6">{tomoTimetable?.["Zuhr J"]}</Typography>
-				</Grid>
-			</Grid>
-			<Grid item container xs={12} sx={rowStyles("Asr")}>
-				<Grid item xs={3} alignSelf={"center"}>
-					<Typography variant="h6">Asr</Typography>
-				</Grid>
-				<Grid item xs={3} alignSelf={"center"}>
-					<Typography variant="h6">{todayTimetable?.Asr}</Typography>
-				</Grid>
-				<Grid item xs={3} alignSelf={"center"}>
-					<Typography variant="h6">{todayTimetable?.["Asr J"]}</Typography>
-				</Grid>
-				<Grid item xs={3} alignSelf={"center"}>
-					<Typography variant="h6">{tomoTimetable?.["Asr J"]}</Typography>
-				</Grid>
-			</Grid>
-			<Grid item container xs={12} sx={rowStyles("Maghrib")}>
-				<Grid item xs={3} alignSelf={"center"}>
-					<Typography variant="h6">Maghrib</Typography>
-				</Grid>
-				<Grid item xs={3} alignSelf={"center"}>
-					<Typography variant="h6">{todayTimetable?.Maghrib}</Typography>
-				</Grid>
-				<Grid item xs={3} alignSelf={"center"}>
-					<Typography variant="h6">{todayTimetable?.["Maghrib J"]}</Typography>
-				</Grid>
-				<Grid item xs={3} alignSelf={"center"}>
-					<Typography variant="h6">{tomoTimetable?.["Maghrib J"]}</Typography>
-				</Grid>
-			</Grid>
-			<Grid item container xs={12} sx={rowStyles("Isha")}>
-				<Grid item xs={3}>
-					<Typography variant="h6">Isha</Typography>
-				</Grid>
-				<Grid item xs={3}>
-					<Typography variant="h6">{todayTimetable?.Isha}</Typography>
-				</Grid>
-				<Grid item xs={3}>
-					<Typography variant="h6">{todayTimetable?.["Isha J"]}</Typography>
-				</Grid>
-				<Grid item xs={3}>
-					<Typography variant="h6">{tomoTimetable?.["Isha J"]}</Typography>
-				</Grid>
-			</Grid>
-			<Grid item container xs={12} sx={rowStyles("Jumu'ah")}>
-				<Grid item xs={6}>
-					<Typography sx={{ color: "black" }} variant="h6">
-						Khutbah
-					</Typography>
-				</Grid>
-				<Grid item xs={6}>
-					<Typography variant="h6" sx={{ color: "black" }}>
-						{todayTimetable?.["Khutbah J"]}
-					</Typography>
-				</Grid>
-			</Grid>
-		</Grid>
+		</Box>
 	);
 
 	// return (

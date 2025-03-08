@@ -13,7 +13,6 @@ import {
 	Typography,
 } from "@mui/material";
 import MuiDrawer from "@mui/material/Drawer";
-import MuiDivider from "@mui/material/Divider";
 
 import { CSSObject, Theme, styled } from "@mui/material/styles";
 import { useLocation, useNavigate } from "react-router-dom";

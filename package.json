@@ -12,20 +12,24 @@
 		"@testing-library/jest-dom": "^5.17.0",
 		"@testing-library/react": "^13.4.0",
 		"@testing-library/user-event": "^13.5.0",
-		"@tiptap/core": "^2.2.4",
-		"@tiptap/extension-color": "^2.2.4",
+		"@tiptap/core": "^2.11.5",
+		"@tiptap/extension-color": "^2.11.5",
 		"@tiptap/extension-heading": "^2.2.4",
 		"@tiptap/extension-image": "^2.2.4",
 		"@tiptap/extension-table": "^2.2.4",
-		"@tiptap/extension-text-align": "^2.2.4",
-		"@tiptap/pm": "^2.2.4",
+		"@tiptap/extension-text-align": "^2.11.5",
+		"@tiptap/extension-text-style": "^2.11.5",
+		"@tiptap/pm": "^2.11.5",
 		"@tiptap/react": "^2.2.4",
-		"@tiptap/starter-kit": "^2.0.0-beta.189",
+		"@tiptap/starter-kit": "^2.11.5",
+		"@types/date-fns": "^2.6.3",
 		"@types/jest": "^27.5.2",
 		"@types/react": "^18.2.52",
 		"@types/react-dom": "^18.2.18",
+		"date-fns": "^4.1.0",
 		"dompurify": "^3.0.9",
 		"framer-motion": "^11.0.14",
+		"idb": "^8.0.2",
 		"moment": "^2.30.1",
 		"moment-hijri": "^2.1.2",
 		"mui-tiptap": "^1.8.6",
@@ -40,7 +44,12 @@
 		"react-scripts": "5.0.1",
 		"typescript": "^4.9.5",
 		"url": "^0.11.3",
-		"web-vitals": "^2.1.4"
+		"web-vitals": "^2.1.4",
+		"workbox-core": "^7.3.0",
+		"workbox-expiration": "^7.3.0",
+		"workbox-precaching": "^7.3.0",
+		"workbox-routing": "^7.3.0",
+		"workbox-strategies": "^7.3.0"
 	},
 	"scripts": {
 		"start": "react-scripts start",
@@ -71,7 +80,8 @@
 		"@types/moment-hijri": "^2.1.4",
 		"@types/mysql": "^2.15.26",
 		"@types/node": "^20.11.28",
-		"@types/papaparse": "^5.3.14"
+		"@types/papaparse": "^5.3.14",
+		"workbox-webpack-plugin": "^7.3.0"
 	},
 	"homepage": "."
 }
