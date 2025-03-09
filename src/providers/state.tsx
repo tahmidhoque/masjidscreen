@@ -2,10 +2,9 @@ import React, {
 	createContext,
 	useState,
 	useContext,
-	Dispatch,
-	SetStateAction,
 	useEffect,
 	useCallback,
+	useMemo,
 } from "react";
 import IData from "../interfaces/IData";
 import DatabaseHandler from "../modules/DatabaseHandler";
@@ -22,15 +21,6 @@ interface PrayerTime {
 	countingJamaat: boolean;
 }
 
-interface AppStateContextType {
-	state: AppState;
-	setState: Dispatch<SetStateAction<AppState>>;
-}
-
-const AppStateContext = createContext<AppStateContextType | undefined>(
-	undefined
-);
-
 interface AppState {
 	isUserLoggedIn: boolean;
 	timetableData: IData[] | null;
@@ -44,10 +34,22 @@ interface AppState {
 	countingJamaat?: boolean;
 }
 
+interface AppStateContextType {
+	state: AppState;
+	refreshData: () => Promise<void>;
+	updateTimetable: (timetable: IData[]) => Promise<void>;
+	setLogin: (isLoggedIn: boolean) => void;
+	updateCountingJamaat: (counting: boolean) => void;
+	updateNextPrayer: (prayer: PrayerTime) => void;
+}
+
+const AppStateContext = createContext<AppStateContextType | undefined>(undefined);
+
+const REFRESH_INTERVAL = 60 * 60 * 1000; // 1 hour in milliseconds
+
 export function AppStateProvider({ children }: { children: React.ReactNode }) {
 	const [state, setState] = useState<AppState>({
-		isUserLoggedIn:
-			localStorage.getItem("authenticated") === "true" ? true : false,
+		isUserLoggedIn: localStorage.getItem("authenticated") === "true",
 		todayTimetable: null,
 		tomoTimetable: null,
 		nextPrayer: null,
@@ -58,76 +60,125 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
 		removePastDates: false,
 	});
 
-	const updateTimetableData = useCallback((timetableData: IData[] | null) => {
-		if (!timetableData) return;
+	// Memoize database instance
+	const database = useMemo(() => new DatabaseHandler(), []);
+
+	// Function to process timetable data and update related state
+	const processTimetableData = useCallback((timetableData: IData[] | null) => {
+		if (!timetableData?.length) return null;
 
 		const today = moment().format("MM/DD/YYYY");
 		const tomorrow = moment().add(1, "days").format("MM/DD/YYYY");
-		const todaysPrayer = timetableData.find(
-			(item: IData) => item.Date === today
-		) || null;
-		const tomorrowsPrayer = timetableData.find(
-			(item: IData) => item.Date === tomorrow
-		) || null;
 
+		const todaysPrayer = timetableData.find(item => item.Date === today) || null;
+		const tomorrowsPrayer = timetableData.find(item => item.Date === tomorrow) || null;
 		const nextPrayer = getPrayerTime(todaysPrayer, tomorrowsPrayer);
 
-		setState(prevState => ({
-			...prevState,
+		return {
 			timetableData,
-			todayTimetable: todaysPrayer,
-			tomoTimetable: tomorrowsPrayer,
+			todaysPrayer,
+			tomorrowsPrayer,
 			nextPrayer,
-			isLoading: false,
-		}));
+		};
 	}, []);
 
-	const getDatafromDatabase = useCallback(async () => {
+	// Main data fetching function
+	const fetchData = useCallback(async () => {
 		try {
-			const database = new DatabaseHandler();
+			setState(prev => ({ ...prev, isLoading: true }));
+
+			// Get validated timetable data
+			const timetableData = await database.getTimetable();
+			const processedData = processTimetableData(timetableData);
+
+			if (!processedData) {
+				throw new Error('Failed to process timetable data');
+			}
+
+			// Get other data
 			const data = await database.getAllData();
-			const timetableData = JSON.parse(data.timetable) as IData[];
-			
 			const decoder = new TextDecoder();
-			const hadith = JSON.parse(data.hadith);
-			const banner = JSON.parse(data.banner);
+			
+			const hadith = JSON.parse(data.hadith || '{}');
+			const banner = JSON.parse(data.banner || '{}');
 			const bannerArray = Object.keys(banner).map(key => banner[key]);
 			const hadithArray = Object.keys(hadith).map(key => hadith[key]);
 			const bannerBinArray = new Uint8Array(bannerArray);
 			const hadithArray8Bit = new Uint8Array(hadithArray);
 
-			setState(prevState => ({
-				...prevState,
-				timetableData,
+			setState(prev => ({
+				...prev,
+				timetableData: processedData.timetableData,
+				todayTimetable: processedData.todaysPrayer,
+				tomoTimetable: processedData.tomorrowsPrayer,
+				nextPrayer: processedData.nextPrayer,
 				hadithOfTheDay: decoder.decode(hadithArray8Bit),
 				bannerMessage: decoder.decode(bannerBinArray),
-			}));
-		} catch (error) {
-			console.error('Failed to fetch data from database:', error);
-			setState(prevState => ({
-				...prevState,
 				isLoading: false,
 			}));
+		} catch (error) {
+			if (process.env.NODE_ENV === 'development') {
+				console.error('Error fetching data:', error);
+			}
+			setState(prev => ({ ...prev, isLoading: false }));
 		}
+	}, [database, processTimetableData]);
+
+	// Action to update timetable
+	const updateTimetable = useCallback(async (timetable: IData[]) => {
+		try {
+			await database.setTimetable(timetable);
+			const processedData = processTimetableData(timetable);
+			if (processedData) {
+				setState(prev => ({
+					...prev,
+					timetableData: processedData.timetableData,
+					todayTimetable: processedData.todaysPrayer,
+					tomoTimetable: processedData.tomorrowsPrayer,
+					nextPrayer: processedData.nextPrayer,
+				}));
+			}
+		} catch (error) {
+			if (process.env.NODE_ENV === 'development') {
+				console.error('Error updating timetable:', error);
+			}
+		}
+	}, [database, processTimetableData]);
+
+	// Action to update login state
+	const setLogin = useCallback((isLoggedIn: boolean) => {
+		localStorage.setItem("authenticated", isLoggedIn.toString());
+		setState(prev => ({ ...prev, isUserLoggedIn: isLoggedIn }));
 	}, []);
 
-	// Effect for initial data load and periodic refresh
-	useEffect(() => {
-		getDatafromDatabase();
-		const interval = setInterval(getDatafromDatabase, 1000 * 60 * 20); // 20 minutes
+	// Action to update counting jamaat state
+	const updateCountingJamaat = useCallback((counting: boolean) => {
+		setState(prev => ({ ...prev, countingJamaat: counting }));
+	}, []);
 
+	// Action to update next prayer
+	const updateNextPrayer = useCallback((prayer: PrayerTime) => {
+		setState(prev => ({ ...prev, nextPrayer: prayer }));
+	}, []);
+
+	// Initial data load and periodic refresh
+	useEffect(() => {
+		fetchData();
+		const interval = setInterval(fetchData, REFRESH_INTERVAL);
 		return () => clearInterval(interval);
-	}, [getDatafromDatabase]);
+	}, [fetchData]);
 
-	// Effect for updating timetable-related state when timetableData changes
-	useEffect(() => {
-		if (state.timetableData !== undefined) {
-			updateTimetableData(state.timetableData);
-		}
-	}, [state.timetableData, updateTimetableData]);
+	const contextValue = useMemo(() => ({
+		state,
+		refreshData: fetchData,
+		updateTimetable,
+		setLogin,
+		updateCountingJamaat,
+		updateNextPrayer,
+	}), [state, fetchData, updateTimetable, setLogin, updateCountingJamaat, updateNextPrayer]);
 
 	return (
-		<AppStateContext.Provider value={{ state, setState }}>
+		<AppStateContext.Provider value={contextValue}>
 			{children}
 		</AppStateContext.Provider>
 	);

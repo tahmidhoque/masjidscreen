@@ -20,7 +20,6 @@ import { useAppState } from "../providers/state";
 import { randomId } from "@mui/x-data-grid-generator";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
-import DatabaseHandler from "../modules/DatabaseHandler";
 import { useGridApiRef } from "@mui/x-data-grid";
 import IData from "../interfaces/IData";
 
@@ -79,7 +78,7 @@ function EditToolbar(props: EditToolbarProps) {
 }
 
 export default function EditingGrid() {
-	const { state, setState } = useAppState();
+	const { state, updateTimetable } = useAppState();
 	const [tableData, setTableData] = useState<ExtendedIData[] | null>(
 		state.timetableData?.map(data => ({ ...data, id: data.Date })) || null
 	);
@@ -132,13 +131,6 @@ export default function EditingGrid() {
 		},
 	];
 
-	const convertData = (data: { [key: string]: GridValidRowModel }): IData[] => {
-		return Object.values(data).map(row => {
-			const { id, isNew, ...rest } = row;
-			return rest as IData;
-		});
-	};
-
 	const CustomFooterStatusComponent = (
 		props: NonNullable<GridSlotsComponentsProps["footer"]>
 	) => {
@@ -147,14 +139,7 @@ export default function EditingGrid() {
 				<Button
 					color="secondary"
 					variant="contained"
-					onClick={() => {
-						if (!tableData) return;
-						const rows = apiRef.current.state.rows.dataRowIdToModelLookup;
-						const dataArray = convertData(rows);
-						const db = new DatabaseHandler();
-						db.setTimetable(dataArray);
-						setState({ ...state, timetableData: dataArray });
-					}}
+					onClick={handleSave}
 				>
 					Save
 				</Button>
@@ -192,6 +177,12 @@ export default function EditingGrid() {
 			)
 		);
 		return updatedRow;
+	};
+
+	const handleSave = async () => {
+		if (tableData) {
+			await updateTimetable(tableData);
+		}
 	};
 
 	return (

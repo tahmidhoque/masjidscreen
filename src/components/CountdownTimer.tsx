@@ -88,7 +88,7 @@ export default function CountdownTimer({
 	hideLabel?: boolean;
 	fontSize?: string;
 }) {
-	const { state, setState } = useAppState();
+	const { state, updateCountingJamaat, updateNextPrayer } = useAppState();
 	const [timeLeft, setTimeLeft] = useState("");
 	const [nextPrayer, setNextPrayer] = useState<PrayerTime | null>(null);
 	const navigate = useNavigate();
@@ -97,10 +97,6 @@ export default function CountdownTimer({
 	const handleNavigation = useCallback((path: string) => {
 		navigate(path);
 	}, [navigate]);
-
-	const updateState = useCallback((newState: typeof state) => {
-		setState(newState);
-	}, [setState]);
 
 	useEffect(() => {
 		if (!state) return;
@@ -156,7 +152,7 @@ export default function CountdownTimer({
 					state.tomoTimetable
 				);
 				setNextPrayer(foundPrayer);
-				updateState({ ...state, nextPrayer: foundPrayer });
+				updateNextPrayer(foundPrayer);
 				return;
 			}
 
@@ -193,12 +189,8 @@ export default function CountdownTimer({
 				countingJamaat,
 			};
 
-			updateState({
-				...state,
-				nextPrayer: updatedPrayer,
-				countingJamaat,
-			});
-
+			updateNextPrayer(updatedPrayer);
+			updateCountingJamaat(countingJamaat);
 			setNextPrayer(updatedPrayer);
 
 			if (countingJamaat) {
@@ -211,7 +203,7 @@ export default function CountdownTimer({
 		return () => {
 			clearInterval(interval);
 		};
-	}, [nextPrayer, state, handleNavigation, updateState]);
+	}, [nextPrayer, state, handleNavigation, updateCountingJamaat, updateNextPrayer]);
 
 	return (
 		<>

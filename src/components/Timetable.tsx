@@ -1,7 +1,7 @@
 import { Grid, Typography, Box } from "@mui/material";
 
 import { useAppState } from "../providers/state";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo } from "react";
 import useResponsiveSize from "../hooks/useResponsiveSize";
 import useScreenOrientation from "../hooks/useScreenOrientation";
 import IData from "../interfaces/IData";
@@ -13,28 +13,27 @@ type PrayerInfo = {
 
 export function Timetable() {
 	const { state } = useAppState();
-	const [todayTimetable, setTodayTimetable] = useState(state.todayTimetable);
-	const [tomoTimetable, setTomoTimetable] = useState(state.tomoTimetable);
 	const responsiveSizes = useResponsiveSize();
 	const { orientation } = useScreenOrientation();
 	const isLandscape = orientation === "landscape-primary";
 
+	// Only log when timetable data actually changes
 	useEffect(() => {
-		if (state.todayTimetable) {
-			setTodayTimetable(state.todayTimetable);
-		}
-		if (state.tomoTimetable) {
-			setTomoTimetable(state.tomoTimetable);
-		}
-	}, [state]);
+		console.log('Timetable data changed:', {
+			todayTimetable: state.todayTimetable?.Date,
+			tomoTimetable: state.tomoTimetable?.Date,
+			numEntries: state.timetableData?.length,
+			isLoading: state.isLoading
+		});
+	}, [state.todayTimetable?.Date, state.tomoTimetable?.Date, state.timetableData?.length, state.isLoading]);
 
-	const rowSX = {
+	const rowSX = useMemo(() => ({
 		padding: responsiveSizes.spacing.xs,
 		borderRadius: "20px",
 		minHeight: isLandscape ? "8vh" : "6vh",
 		display: "flex",
 		alignItems: "center",
-	};
+	}), [responsiveSizes.spacing.xs, isLandscape]);
 
 	const isNextPrayer = (prayer: string) => {
 		if (!state.nextPrayer) return false;
@@ -53,20 +52,36 @@ export function Timetable() {
 		return style;
 	};
 
-	const cellStyles = {
+	const cellStyles = useMemo(() => ({
 		display: "flex",
 		justifyContent: "center",
 		alignItems: "center",
 		padding: responsiveSizes.spacing.xs,
-	};
+	}), [responsiveSizes.spacing.xs]);
 
-	const prayers: PrayerInfo[] = [
+	const prayers: PrayerInfo[] = useMemo(() => [
 		{ name: "Fajr", key: "Fajr" },
 		{ name: "Zuhr", key: "Zuhr" },
 		{ name: "Asr", key: "Asr" },
 		{ name: "Maghrib", key: "Maghrib" },
 		{ name: "Isha", key: "Isha" },
-	];
+	], []);
+
+	if (state.isLoading) {
+		return (
+			<Box sx={{ width: "100%", textAlign: "center", p: 2 }}>
+				<Typography variant="h6">Loading prayer times...</Typography>
+			</Box>
+		);
+	}
+
+	if (!state.todayTimetable || !state.tomoTimetable) {
+		return (
+			<Box sx={{ width: "100%", textAlign: "center", p: 2 }}>
+				<Typography variant="h6">No prayer times available</Typography>
+			</Box>
+		);
+	}
 
 	return (
 		<Box sx={{ width: "100%" }}>
@@ -92,16 +107,16 @@ export function Timetable() {
 							<Typography variant="h6">{prayer.name}</Typography>
 						</Grid>
 						<Grid item xs={3} sx={cellStyles}>
-							<Typography variant="h6">{todayTimetable?.[prayer.key]}</Typography>
+							<Typography variant="h6">{state.todayTimetable?.[prayer.key]}</Typography>
 						</Grid>
 						<Grid item xs={3} sx={cellStyles}>
 							<Typography variant="h6">
-								{todayTimetable?.[`${prayer.key} J` as keyof IData]}
+								{state.todayTimetable?.[`${prayer.key} J` as keyof IData]}
 							</Typography>
 						</Grid>
 						<Grid item xs={3} sx={cellStyles}>
 							<Typography variant="h6">
-								{tomoTimetable?.[`${prayer.key} J` as keyof IData]}
+								{state.tomoTimetable?.[`${prayer.key} J` as keyof IData]}
 							</Typography>
 						</Grid>
 					</Grid>
@@ -109,51 +124,4 @@ export function Timetable() {
 			</Grid>
 		</Box>
 	);
-
-	// return (
-	// 	<TableContainer>
-	// 		<Table>
-	// 			<TableHead>
-	// 				<TableRow>
-	// 					<TableCell>Prayer</TableCell>
-	// 					<TableCell>Start</TableCell>
-	// 					<TableCell>Jamaa'at</TableCell>
-	// 					<TableCell>Tomorrow's Jamaa'at</TableCell>
-	// 				</TableRow>
-	// 			</TableHead>
-	// 			<TableBody>
-	// 				<TableRow>
-	// 					<TableCell>Fajr</TableCell>
-	// 					<TableCell>{todayTimetable?.Fajr}</TableCell>
-	// 					<TableCell>{todayTimetable?.["Fajr J"]}</TableCell>
-	// 					<TableCell>{tomoTimetable?.["Fajr J"]}</TableCell>
-	// 				</TableRow>
-	// 				<TableRow>
-	// 					<TableCell>Zuhr</TableCell>
-	// 					<TableCell>{todayTimetable?.Zuhr}</TableCell>
-	// 					<TableCell>{todayTimetable?.["Zuhr J"]}</TableCell>
-	// 					<TableCell>{tomoTimetable?.["Zuhr J"]}</TableCell>
-	// 				</TableRow>
-	// 				<TableRow>
-	// 					<TableCell>Asr</TableCell>
-	// 					<TableCell>{todayTimetable?.Asr}</TableCell>
-	// 					<TableCell>{todayTimetable?.["Asr J"]}</TableCell>
-	// 					<TableCell>{tomoTimetable?.["Asr J"]}</TableCell>
-	// 				</TableRow>
-	// 				<TableRow>
-	// 					<TableCell>Maghrib</TableCell>
-	// 					<TableCell>{todayTimetable?.Maghrib}</TableCell>
-	// 					<TableCell>{todayTimetable?.["Maghrib J"]}</TableCell>
-	// 					<TableCell>{tomoTimetable?.["Maghrib J"]}</TableCell>
-	// 				</TableRow>
-	// 				<TableRow>
-	// 					<TableCell>Isha</TableCell>
-	// 					<TableCell>{todayTimetable?.Isha}</TableCell>
-	// 					<TableCell>{todayTimetable?.["Isha J"]}</TableCell>
-	// 					<TableCell>{tomoTimetable?.["Isha J"]}</TableCell>
-	// 				</TableRow>
-	// 			</TableBody>
-	// 		</Table>
-	// 	</TableContainer>
-	// );
 }

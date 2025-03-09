@@ -11,16 +11,12 @@ const fieldStyle = {
 
 export default function Login() {
 	const [password, setPassword] = useState("");
-	const { state, setState } = useAppState();
+	const { setLogin } = useAppState();
 	const navigate = useNavigate();
 
 	const handleLogin = () => {
 		if (password === process.env.REACT_APP_PASSWORD) {
-			localStorage.setItem("authenticated", "true");
-			setState({
-				...state,
-				isUserLoggedIn: true,
-			});
+			setLogin(true);
 			navigate("/settings");
 		}
 	};

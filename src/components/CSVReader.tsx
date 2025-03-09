@@ -17,6 +17,24 @@ const REMOVE_HOVER_COLOR_LIGHT = lightenDarkenColor(
 );
 const GREY_DIM = "#686868";
 
+const REQUIRED_FIELDS = [
+	"Date",
+	"Day",
+	"Fajr",
+	"Sunrise",
+	"Zuhr",
+	"Khutbah",
+	"Asr",
+	"Maghrib",
+	"Isha",
+	"Fajr J",
+	"Zuhr J",
+	"Asr J",
+	"Maghrib J",
+	"Isha J",
+	"Khutbah J",
+];
+
 const styles = {
 	zone: {
 		alignItems: "center",
@@ -83,59 +101,39 @@ const styles = {
 };
 
 export default function CSVReader() {
-	const { state, setState } = useAppState();
+	const { state, updateTimetable } = useAppState();
 	const { CSVReader } = useCSVReader();
 	const [zoneHover, setZoneHover] = useState(false);
 	const [removeHoverColor, setRemoveHoverColor] = useState(
 		DEFAULT_REMOVE_HOVER_COLOR
 	);
 
-	const db = new DatabaseHandler();
+	const validateDate = (data: any[]): boolean => {
+		return data.every((item: any) => {
+			const itemProps = Object.keys(item);
+			return REQUIRED_FIELDS.every(field => itemProps.includes(field));
+		});
+	};
 
-	const validateDate = (data: []) => {
-		if (
-			data.every((item: {}) => {
-				const itemProps = Object.getOwnPropertyNames(item);
-				const propsRequired = [
-					"Date",
-					"Day",
-					"Fajr",
-					"Sunrise",
-					"Zuhr",
-					"Khutbah",
-					"Asr",
-					"Maghrib",
-					"Isha",
-					"Fajr J",
-					"Zuhr J",
-					"Asr J",
-					"Maghrib J",
-					"Isha J",
-					"Khutbah J",
-				];
-				return itemProps.every((prop) => propsRequired.includes(prop));
-			})
-		) {
-			return true;
-		} else {
-			return false;
-		}
+	const handleUpload = async (results: any) => {
+		const data = results.data.map((row: any) => ({
+			...row,
+			id: row.Date,
+		}));
+		await updateTimetable(data);
 	};
 
 	return (
 		<CSVReader
 			config={{ header: true, skipEmptyLines: true }}
 			onUploadAccepted={(results: any) => {
-				const cleanedData = results.data.filter((r: any) => r.Date.length > 1);
+				const cleanedData = results.data.filter((r: any) => r.Date?.length > 1);
 				const isValidCSV = validateDate(cleanedData);
 				if (isValidCSV) {
-					const idAddedData = cleanedData.map((item: any, index: number) => {
-						return { ...item, id: item.Date };
-					});
-					db.setTimetable(idAddedData);
-					setState({ ...state, timetableData: idAddedData });
+					handleUpload(results);
+				} else {
+					alert('Invalid CSV format. Please ensure all required fields are present.');
 				}
-
 				setZoneHover(false);
 			}}
 			onDragOver={(event: DragEvent) => {

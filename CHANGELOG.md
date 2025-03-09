@@ -1,5 +1,51 @@
 # Changelog
 
+## [1.1.0] - 2024-03-20
+
+### feat(state): Improve state management and code quality
+
+This release focuses on improving state management, error handling, and overall code quality
+through extensive refactoring and cleanup.
+
+### Key Changes:
+- 🔄 Centralize state management in AppStateProvider
+- 🧹 Remove duplicate state logic across components
+- ✨ Add proper validation for CSV uploads
+- 🐛 Fix date comparison and timetable update issues
+- 🔍 Improve error handling and logging
+
+### Details:
+
+#### State Management:
+- Refactor AppStateProvider to use specific actions instead of setState
+- Add dedicated actions for timetable, login, and prayer updates
+- Implement proper memoization for performance optimization
+- Remove redundant state updates and improve data flow
+
+#### Data Validation:
+- Add comprehensive CSV field validation
+- Implement proper date format checking
+- Add user feedback for invalid CSV formats
+- Improve error handling for data processing
+
+#### Code Quality:
+- Remove unused imports and variables
+- Clean up TypeScript types and interfaces
+- Add proper error boundaries and null checks
+- Improve code organization and readability
+
+#### Component Updates:
+- Update CSVReader with proper validation
+- Refactor EditingGrid for better state management
+- Clean up Login component
+- Optimize Timetable component rendering
+
+#### Technical Implementation:
+- Use TypeScript strict mode effectively
+- Implement proper error handling patterns
+- Add development-only logging
+- Improve type safety across components
+
 ## [1.0.0] - 2024-03-08
 
 ### feat(layout): Improve mobile responsiveness and fix visual issues
