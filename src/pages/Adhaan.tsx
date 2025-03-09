@@ -29,7 +29,7 @@ export default function Adhaan() {
 		// During Adhaan, next will be Jamaa'at
 		return {
 			title: `Next: ${state.nextPrayer.name} Jamaa'at`,
-			time: moment(state.nextPrayer.jamaat, "HH:mm").format("h:mm A")
+			time: moment(state.nextPrayer.jamaat, ["h:mm A", "HH:mm"]).format("h:mm A")
 		};
 	};
 

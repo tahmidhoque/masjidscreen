@@ -20,33 +20,34 @@ export default function CountdownPage({
 
 		const prayers = ["Fajr", "Zuhr", "Asr", "Maghrib", "Isha"] as const;
 		const currentPrayerIndex = prayers.indexOf(nextPrayer.name as typeof prayers[number]);
+		const now = moment();
 		
 		// If we're counting down to Adhaan
 		if (title === "Adhaan") {
 			// Next will be the Jamaa'at for this prayer
 			return {
 				title: `Next: ${nextPrayer.name} Jamaa'at`,
-				time: moment(nextPrayer.jamaat, "HH:mm").format("h:mm A")
+				time: moment(nextPrayer.jamaat, ["h:mm A", "HH:mm"]).format("h:mm A")
 			};
 		} else {
 			// If we're counting down to Jamaa'at, next will be the next prayer's Adhaan
-			let nextPrayerName: typeof prayers[number];
-			let nextPrayerTime: string;
-
-			// If this is the last prayer of the day
-			if (currentPrayerIndex === prayers.length - 1) {
-				// Next prayer is tomorrow's Fajr
-				nextPrayerName = "Fajr";
-				nextPrayerTime = state.tomoTimetable[nextPrayerName];
-			} else {
-				// Next prayer is today's next prayer
-				nextPrayerName = prayers[currentPrayerIndex + 1];
-				nextPrayerTime = state.todayTimetable[nextPrayerName];
+			// First check if there are any more prayers today
+			for (let i = currentPrayerIndex + 1; i < prayers.length; i++) {
+				const nextPrayerName = prayers[i];
+				const nextPrayerTime = moment(state.todayTimetable[nextPrayerName], ["h:mm A", "HH:mm"]);
+				
+				if (now.isBefore(nextPrayerTime)) {
+					return {
+						title: `Next: ${nextPrayerName} Adhaan`,
+						time: nextPrayerTime.format("h:mm A")
+					};
+				}
 			}
 
+			// If no more prayers today, return tomorrow's Fajr
 			return {
-				title: `Next: ${nextPrayerName} Adhaan`,
-				time: moment(nextPrayerTime, "HH:mm").format("h:mm A")
+				title: `Next: Fajr Adhaan`,
+				time: moment(state.tomoTimetable["Fajr"], ["h:mm A", "HH:mm"]).format("h:mm A")
 			};
 		}
 	};

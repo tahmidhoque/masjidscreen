@@ -32,47 +32,62 @@ export const getPrayerTime = (today: IData | null, tomorrow: IData | null): Pray
 		};
 	}
 
-	const nextJ = Object.keys(today).find((key) => {
-		const isFriday = moment().day() === 5;
+	const prayers = ["Fajr", "Zuhr", "Asr", "Maghrib", "Isha"] as const;
+	const now = moment();
 
-		if (
-			key.charAt(key.length - 1) === "J" &&
-			moment().isBefore(moment(today[key as keyof IData] as string, "hh:mm"))
-		) {
-			if (key.includes("Khutbah") && isFriday) {
-				return true;
-			} else if (!key.includes("Khutbah")) {
-				return true;
-			}
+	console.log("Current time:", now.format("HH:mm"));
+	console.log("Today's prayer times:", today);
+
+	// First check today's prayers
+	for (const prayer of prayers) {
+		// Convert from 12-hour to 24-hour format
+		const prayerDateTime = moment(today[prayer], ["h:mm A", "HH:mm"]).set({
+			year: now.year(),
+			month: now.month(),
+			date: now.date()
+		});
+		
+		const jamaatDateTime = moment(today[`${prayer} J`], ["h:mm A", "HH:mm"]).set({
+			year: now.year(),
+			month: now.month(),
+			date: now.date()
+		});
+		
+		console.log(`\nChecking ${prayer}:`, {
+			now: now.format("HH:mm"),
+			prayerTime: prayerDateTime.format("HH:mm"),
+			jamaatTime: jamaatDateTime.format("HH:mm"),
+			rawPrayerTime: today[prayer],
+			rawJamaatTime: today[`${prayer} J`],
+			isPrayerAfterNow: now.isBefore(prayerDateTime),
+			isJamaatAfterNow: now.isBefore(jamaatDateTime)
+		});
+
+		if (now.isBefore(prayerDateTime) || now.isBefore(jamaatDateTime)) {
+			console.log(`Found next prayer: ${prayer}`);
+			return {
+				name: prayer,
+				time: today[prayer],
+				jamaat: today[`${prayer} J`],
+				jamaatTimeLeft: "",
+				timeLeft: "",
+				tomorrow: false,
+				countingJamaat: false,
+			};
 		}
-		return false;
-	}) as JamaatKey | undefined;
-
-	const next = Object.keys(today).find((key) => {
-		return key === nextJ?.slice(0, -2);
-	}) as PrayerKey | undefined;
-
-	if (next && nextJ) {
-		return {
-			name: next,
-			time: today[next],
-			jamaat: today[nextJ],
-			jamaatTimeLeft: "",
-			timeLeft: "",
-			tomorrow: false,
-			countingJamaat: false,
-		};
-	} else {
-		return {
-			name: "Fajr",
-			time: tomorrow["Fajr J"],
-			jamaat: tomorrow["Fajr"],
-			jamaatTimeLeft: "",
-			timeLeft: "",
-			tomorrow: true,
-			countingJamaat: false,
-		};
 	}
+
+	console.log("No more prayers today, returning tomorrow's Fajr");
+	// If no more prayers today, return tomorrow's Fajr
+	return {
+		name: "Fajr",
+		time: tomorrow["Fajr"],
+		jamaat: tomorrow["Fajr J"],
+		jamaatTimeLeft: "",
+		timeLeft: "",
+		tomorrow: true,
+		countingJamaat: false,
+	};
 };
 
 export const formatTime = (time: number) => {
@@ -115,15 +130,16 @@ export default function CountdownTimer({
 		setNextPrayer(initialPrayer);
 		
 		// Calculate initial time left immediately
-		const time = moment(initialPrayer.time, "hh:mm");
-		if (initialPrayer.tomorrow) {
-			time.add(1, "day");
-		}
+		const prayerTime = moment(initialPrayer.time, ["h:mm A", "HH:mm"]).set({
+			year: moment().year(),
+			month: moment().month(),
+			date: initialPrayer.tomorrow ? moment().date() + 1 : moment().date()
+		});
 
 		const now = moment();
-		const timeLeftMinutes = time.diff(now, "minutes") % 60;
-		const timeLeftHours = time.diff(now, "hours");
-		const timeLeftSeconds = time.diff(now, "seconds") % 60;
+		const timeLeftMinutes = prayerTime.diff(now, "minutes") % 60;
+		const timeLeftHours = prayerTime.diff(now, "hours");
+		const timeLeftSeconds = prayerTime.diff(now, "seconds") % 60;
 		const initialTimeLeft = `${formatTime(timeLeftHours)}:${formatTime(
 			timeLeftMinutes
 		)}:${formatTime(timeLeftSeconds)}`;
@@ -140,7 +156,7 @@ export default function CountdownTimer({
 			if (nextPrayer.timeLeft === "00:00:00") {
 				if (
 					moment().isSameOrBefore(
-						moment(nextPrayer.time, "hh:mm").add(3, "minutes")
+						moment(nextPrayer.time, ["h:mm A", "HH:mm"]).add(3, "minutes")
 					)
 				) {
 					handleNavigation("/adhaan");
@@ -149,8 +165,8 @@ export default function CountdownTimer({
 				if (nextPrayer.jamaatTimeLeft === "00:00:00") {
 					handleNavigation("/jamaat");
 				} else if (
-					moment(nextPrayer.jamaatTimeLeft, "hh:mm:ss").isSameOrBefore(
-						moment("00:05:00", "hh:mm:ss")
+					moment(nextPrayer.jamaatTimeLeft, "HH:mm:ss").isSameOrBefore(
+						moment("00:05:00", "HH:mm:ss")
 					) &&
 					nextPrayer.name !== "Maghrib"
 				) {
@@ -160,8 +176,8 @@ export default function CountdownTimer({
 
 			if (
 				nextPrayer.timeLeft !== "00:00:00" &&
-				moment(nextPrayer.timeLeft, "hh:mm:ss").isSameOrBefore(
-					moment("00:05:00", "hh:mm:ss")
+				moment(nextPrayer.timeLeft, "HH:mm:ss").isSameOrBefore(
+					moment("00:05:00", "HH:mm:ss")
 				)
 			) {
 				handleNavigation("/adhaan-countdown");
@@ -185,9 +201,15 @@ export default function CountdownTimer({
 				return;
 			}
 
-			// update jamaat time left
-			const jamaatTime = moment(nextPrayer.jamaat, "hh:mm");
 			const now = moment();
+
+			// update jamaat time left
+			const jamaatTime = moment(nextPrayer.jamaat, ["h:mm A", "HH:mm"]).set({
+				year: moment().year(),
+				month: moment().month(),
+				date: nextPrayer.tomorrow ? moment().date() + 1 : moment().date()
+			});
+			
 			const jamaatTimeLeftMinutes = jamaatTime.diff(now, "minutes") % 60;
 			const jamaatTimeLeftHours = jamaatTime.diff(now, "hours");
 			const jamaatTimeLeftSeconds = jamaatTime.diff(now, "seconds") % 60;
@@ -196,14 +218,15 @@ export default function CountdownTimer({
 			)}:${formatTime(jamaatTimeLeftSeconds)}`;
 
 			//update adhaan time left
-			const time = moment(nextPrayer.time, "hh:mm");
-			if (nextPrayer.tomorrow) {
-				time.add(1, "day");
-			}
+			const prayerTime = moment(nextPrayer.time, ["h:mm A", "HH:mm"]).set({
+				year: moment().year(),
+				month: moment().month(),
+				date: nextPrayer.tomorrow ? moment().date() + 1 : moment().date()
+			});
 
-			const timeLeftMinutes = time.diff(now, "minutes") % 60;
-			const timeLeftHours = time.diff(now, "hours");
-			const timeLeftSeconds = time.diff(now, "seconds") % 60;
+			const timeLeftMinutes = prayerTime.diff(now, "minutes") % 60;
+			const timeLeftHours = prayerTime.diff(now, "hours");
+			const timeLeftSeconds = prayerTime.diff(now, "seconds") % 60;
 			const timeLeft = `${formatTime(timeLeftHours)}:${formatTime(
 				timeLeftMinutes
 			)}:${formatTime(timeLeftSeconds)}`;
