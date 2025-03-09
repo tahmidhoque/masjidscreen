@@ -11,6 +11,23 @@ type PrayerInfo = {
 	key: keyof Pick<IData, "Fajr" | "Zuhr" | "Asr" | "Maghrib" | "Isha">;
 };
 
+const convertTo24Hour = (time12h: string | undefined): string => {
+	if (!time12h) return '';
+	const [timeStr, modifier] = time12h.split(' ');
+	if (!timeStr || !modifier) return time12h;
+	
+	let [hours, minutes] = timeStr.split(':').map(num => parseInt(num, 10));
+	if (isNaN(hours) || isNaN(minutes)) return time12h;
+	
+	if (hours === 12) {
+		hours = modifier === 'PM' ? 12 : 0;
+	} else {
+		hours = modifier === 'PM' ? hours + 12 : hours;
+	}
+	
+	return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+};
+
 export function Timetable() {
 	const { state } = useAppState();
 	const responsiveSizes = useResponsiveSize();
@@ -107,16 +124,18 @@ export function Timetable() {
 							<Typography variant="h6">{prayer.name}</Typography>
 						</Grid>
 						<Grid item xs={3} sx={cellStyles}>
-							<Typography variant="h6">{state.todayTimetable?.[prayer.key]}</Typography>
-						</Grid>
-						<Grid item xs={3} sx={cellStyles}>
 							<Typography variant="h6">
-								{state.todayTimetable?.[`${prayer.key} J` as keyof IData]}
+								{convertTo24Hour(state.todayTimetable?.[prayer.key])}
 							</Typography>
 						</Grid>
 						<Grid item xs={3} sx={cellStyles}>
 							<Typography variant="h6">
-								{state.tomoTimetable?.[`${prayer.key} J` as keyof IData]}
+								{convertTo24Hour(state.todayTimetable?.[`${prayer.key} J` as keyof IData])}
+							</Typography>
+						</Grid>
+						<Grid item xs={3} sx={cellStyles}>
+							<Typography variant="h6">
+								{convertTo24Hour(state.tomoTimetable?.[`${prayer.key} J` as keyof IData])}
 							</Typography>
 						</Grid>
 					</Grid>

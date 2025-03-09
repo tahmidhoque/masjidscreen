@@ -23,11 +23,16 @@ export default function Banner() {
 					<Box
 						component={"div"}
 						sx={{
-							"& p": {
-								margin: 0,
-								fontSize: responsiveSizes.fontSize.body1,
-								color: "white",
+							"& p, & h1, & h2, & h3, & h4, & h5, & h6": {
+								margin: "0 !important",
+								fontSize: "0.4rem !important",
+								color: "white !important",
+								lineHeight: "1 !important",
+								fontWeight: "normal !important",
 							},
+							height: "100%",
+							display: "flex",
+							alignItems: "center",
 						}}
 						dangerouslySetInnerHTML={{
 							__html: banner,

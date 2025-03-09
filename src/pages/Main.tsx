@@ -57,13 +57,14 @@ export default function Main() {
 						overflow: "hidden",
 					}}
 				>
-					{/* Main content area */}
+					{/* Main content area with padding */}
 					<Box
 						sx={{
 							flex: 1,
 							display: "flex",
 							flexDirection: "column",
 							overflow: "hidden",
+							padding: "1rem",
 						}}
 					>
 						{/* Clock and Date Section - Fixed height for mobile */}
@@ -152,16 +153,15 @@ export default function Main() {
 					{/* Footer area */}
 					<Box
 						sx={{
-							height: "15%",
 							display: "flex",
 							flexDirection: "column",
 							justifyContent: "flex-end",
 							overflow: "hidden",
+							padding: "0 1rem",
 						}}
 					>
 						<Box
 							sx={{
-								flex: 1,
 								display: "flex",
 								alignItems: "center",
 								justifyContent: "center",
@@ -173,9 +173,11 @@ export default function Main() {
 						</Box>
 						<Box
 							sx={{
-								height: responsiveSizes.spacing.sm,
-								backgroundColor: "rgba(0,0,0,0.1)",
+								height: "0.75rem",
 								overflow: "hidden",
+								display: "flex",
+								alignItems: "center",
+								marginBottom: "0.5rem",
 							}}
 						>
 							<Banner />
