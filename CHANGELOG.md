@@ -119,4 +119,30 @@ the user experience and provide better visual feedback during navigation.
 - Update MainLayout with motion.div wrapper
 - Configure Routes with location-based transitions
 - Add proper cleanup for navigation timeouts
-- Maintain original navigation timing logic 
+- Maintain original navigation timing logic
+
+## [1.1.2] - 2024-03-21
+
+### feat(countdown): Enhance countdown pages with next prayer info
+
+This patch adds a new component to display upcoming prayer information on the
+countdown, Adhaan, and Jamaat pages.
+
+### Key Changes:
+- ✨ Add next prayer info component with glass effect
+- 🎨 Improve spacing and layout across countdown pages
+- 🔄 Show contextual information based on current state
+
+### Details:
+
+#### Component Features:
+- Add glass-effect card for next prayer information
+- Display dynamic titles based on current context
+- Show formatted times with 12-hour clock
+- Implement proper spacing and positioning
+
+#### Technical Implementation:
+- Add getNextTimeInfo logic for different scenarios
+- Handle edge cases (last prayer of the day)
+- Maintain consistent styling across pages
+- Ensure proper TypeScript typing 
