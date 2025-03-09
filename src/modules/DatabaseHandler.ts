@@ -1,5 +1,6 @@
 import { PrayerTimes, Coordinates, CalculationMethod, Madhab } from 'adhan';
 import moment from 'moment';
+import { calculateJamaatTimes, type PrayerTimes as JamaatPrayerTimes } from '../jamaat-calculator';
 
 interface PrayerTimesData {
 	Date: string;
@@ -71,6 +72,14 @@ class DatabaseHandler {
 		}).replace(/^0+/, '');
 	}
 
+	private format24HourTime(date: Date): string {
+		return date.toLocaleTimeString('en-GB', { 
+			hour: '2-digit', 
+			minute: '2-digit', 
+			hour12: false 
+		});
+	}
+
 	private getDayName(date: Date): string {
 		return date.toLocaleDateString('en-US', { weekday: 'short' });
 	}
@@ -92,32 +101,47 @@ class DatabaseHandler {
 
 		const prayerTimes = new PrayerTimes(this.coordinates, date, this.calculationMethod);
 		
-		// Default Jamaah prayer offsets (in minutes)
-		const jamaahOffsets = {
-			fajr: 20,
-			zuhr: 15,
-			asr: 15,
-			maghrib: 5,
-			isha: 20
-		};
-
-		return {
-			Date: this.formatDate(date),
-			Day: this.getDayName(date),
+		// Format prayer times for display (12-hour format)
+		const displayTimes = {
 			Fajr: this.formatTime(prayerTimes.fajr),
-			Sunrise: this.formatTime(prayerTimes.sunrise),
 			Zuhr: this.formatTime(prayerTimes.dhuhr),
 			Asr: this.formatTime(prayerTimes.asr),
 			Maghrib: this.formatTime(prayerTimes.maghrib),
 			Isha: this.formatTime(prayerTimes.isha),
-			"Fajr J": this.formatTime(new Date(prayerTimes.fajr.getTime() + jamaahOffsets.fajr * 60000)),
-			"Zuhr J": this.formatTime(new Date(prayerTimes.dhuhr.getTime() + jamaahOffsets.zuhr * 60000)),
-			"Asr J": this.formatTime(new Date(prayerTimes.asr.getTime() + jamaahOffsets.asr * 60000)),
-			"Maghrib J": this.formatTime(new Date(prayerTimes.maghrib.getTime() + jamaahOffsets.maghrib * 60000)),
-			"Isha J": this.formatTime(new Date(prayerTimes.isha.getTime() + jamaahOffsets.isha * 60000)),
-			Khutbah: "13:00",
-			"Khutbah J": "13:00"
 		};
+
+		// Format prayer times for Jamaat calculation (24-hour format)
+		const formattedTimes: JamaatPrayerTimes = {
+			Fajr: this.format24HourTime(prayerTimes.fajr),
+			Zuhr: this.format24HourTime(prayerTimes.dhuhr),
+			Asr: this.format24HourTime(prayerTimes.asr),
+			Maghrib: this.format24HourTime(prayerTimes.maghrib),
+			Isha: this.format24HourTime(prayerTimes.isha),
+		};
+
+		// Calculate Jamaat times using our new calculator
+		const jamaatTimes = calculateJamaatTimes(formattedTimes);
+
+		return {
+			Date: this.formatDate(date),
+			Day: this.getDayName(date),
+			...displayTimes,
+			Sunrise: this.formatTime(prayerTimes.sunrise),
+			"Fajr J": this.convertTo12Hour(jamaatTimes.Fajr),
+			"Zuhr J": this.convertTo12Hour(jamaatTimes.Zuhr),
+			"Asr J": this.convertTo12Hour(jamaatTimes.Asr),
+			"Maghrib J": this.convertTo12Hour(jamaatTimes.Maghrib),
+			"Isha J": this.convertTo12Hour(jamaatTimes.Isha),
+			Khutbah: "1:00 PM",
+			"Khutbah J": "1:00 PM"
+		};
+	}
+
+	private convertTo12Hour(time24: string): string {
+		const [hours, minutes] = time24.split(':').map(Number);
+		const period = hours >= 12 ? 'PM' : 'AM';
+		const hours12 = hours % 12 || 12;
+		return `${hours12}:${String(minutes).padStart(2, '0')} ${period}`;
 	}
 
 	private generateFutureTimetable(days: number = 30): PrayerTimesData[] {
