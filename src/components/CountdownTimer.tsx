@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useAppState } from "../providers/state";
 import moment from "moment";
-import { Box, Grid } from "@mui/material";
+import { Box, Grid, Skeleton } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import IData from "../interfaces/IData";
 import useResponsiveSize from "../hooks/useResponsiveSize";
@@ -89,8 +89,17 @@ export default function CountdownTimer({
 	fontSize?: string;
 }) {
 	const { state, updateCountingJamaat, updateNextPrayer } = useAppState();
-	const [timeLeft, setTimeLeft] = useState("");
-	const [nextPrayer, setNextPrayer] = useState<PrayerTime | null>(null);
+	const [timeLeft, setTimeLeft] = useState("--:--:--");
+	const [nextPrayer, setNextPrayer] = useState<PrayerTime | null>({
+		name: "",
+		time: "",
+		jamaat: "",
+		jamaatTimeLeft: "",
+		timeLeft: "",
+		tomorrow: false,
+		countingJamaat: false,
+	});
+	const [isLoading, setIsLoading] = useState(true);
 	const navigate = useNavigate();
 	const responsiveSizes = useResponsiveSize();
 
@@ -98,10 +107,30 @@ export default function CountdownTimer({
 		navigate(path);
 	}, [navigate]);
 
+	// Initialize the prayer time as soon as state is available
 	useEffect(() => {
-		if (!state) return;
-		setNextPrayer(state.nextPrayer);
-	}, [state]);
+		if (!state?.todayTimetable || !state?.tomoTimetable) return;
+		
+		const initialPrayer = getPrayerTime(state.todayTimetable, state.tomoTimetable);
+		setNextPrayer(initialPrayer);
+		
+		// Calculate initial time left immediately
+		const time = moment(initialPrayer.time, "hh:mm");
+		if (initialPrayer.tomorrow) {
+			time.add(1, "day");
+		}
+
+		const now = moment();
+		const timeLeftMinutes = time.diff(now, "minutes") % 60;
+		const timeLeftHours = time.diff(now, "hours");
+		const timeLeftSeconds = time.diff(now, "seconds") % 60;
+		const initialTimeLeft = `${formatTime(timeLeftHours)}:${formatTime(
+			timeLeftMinutes
+		)}:${formatTime(timeLeftSeconds)}`;
+
+		setTimeLeft(initialTimeLeft);
+		setIsLoading(false);
+	}, [state?.todayTimetable, state?.tomoTimetable]);
 
 	useEffect(() => {
 		if (!nextPrayer || !state) return;
@@ -205,35 +234,37 @@ export default function CountdownTimer({
 		};
 	}, [nextPrayer, state, handleNavigation, updateCountingJamaat, updateNextPrayer]);
 
+	if (hide) return null;
+
 	return (
-		<>
-			{!hide && (
-				<Grid container spacing={0} sx={{ color: "white", width: "100%" }}>
-					{!hideLabel && (
-						<Grid item xs={12} sx={{ textAlign: "center" }}>
-							<Box
-								sx={{
-									fontSize: fontSize || responsiveSizes.fontSize.h2,
-									fontWeight: "bold",
-								}}
-							>
-								Time Till {nextPrayer?.name}{" "}
-								{nextPrayer?.countingJamaat ? "Jamaa'at" : ""}{" "}
-							</Box>
-						</Grid>
-					)}
-					<Grid item xs={12} sx={{ textAlign: "center" }}>
-						<Box
-							sx={{
-								fontSize: fontSize || responsiveSizes.fontSize.h1,
-								fontWeight: "bold",
-							}}
-						>
-							{timeLeft}
-						</Box>
-					</Grid>
+		<Grid container spacing={0} sx={{ color: "white", width: "100%" }}>
+			{!hideLabel && (
+				<Grid item xs={12} sx={{ textAlign: "center" }}>
+					<Box
+						sx={{
+							fontSize: fontSize || responsiveSizes.fontSize.h2,
+							fontWeight: "bold",
+							opacity: isLoading ? 0.5 : 1,
+							transition: "opacity 0.3s ease-in-out"
+						}}
+					>
+						Time Till {nextPrayer?.name || "..."}{" "}
+						{nextPrayer?.countingJamaat ? "Jamaa'at" : ""}{" "}
+					</Box>
 				</Grid>
 			)}
-		</>
+			<Grid item xs={12} sx={{ textAlign: "center" }}>
+				<Box
+					sx={{
+						fontSize: fontSize || responsiveSizes.fontSize.h1,
+						fontWeight: "bold",
+						opacity: isLoading ? 0.5 : 1,
+						transition: "opacity 0.3s ease-in-out"
+					}}
+				>
+					{timeLeft}
+				</Box>
+			</Grid>
+		</Grid>
 	);
 }
