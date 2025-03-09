@@ -93,4 +93,30 @@ various visual issues to enhance the user experience.
 - Verified on iPhone 12 Pro
 - Tested in both portrait and landscape modes
 - Confirmed text scaling works with various content lengths
-- Validated scrolling behavior across different sections 
+- Validated scrolling behavior across different sections
+
+## [1.1.1] - 2024-03-21
+
+### feat(transitions): Add smooth page transitions
+
+This patch introduces smooth page transitions between different views to enhance
+the user experience and provide better visual feedback during navigation.
+
+### Key Changes:
+- ✨ Add smooth page transitions using Framer Motion
+- 🔄 Implement spring-based animations for natural feel
+- 🎯 Configure transitions to exclude settings pages
+
+### Details:
+
+#### Animation Implementation:
+- Add AnimatePresence for coordinated enter/exit animations
+- Implement spring physics for smoother motion
+- Configure proper animation parameters (stiffness: 260, damping: 20)
+- Add subtle vertical slide with fade effect
+
+#### Technical Implementation:
+- Update MainLayout with motion.div wrapper
+- Configure Routes with location-based transitions
+- Add proper cleanup for navigation timeouts
+- Maintain original navigation timing logic 
