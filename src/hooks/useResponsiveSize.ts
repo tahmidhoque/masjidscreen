@@ -15,6 +15,7 @@ interface ResponsiveSizes {
     md: number;
     lg: number;
   };
+  isLandscape: boolean;
 }
 
 const calculateSizes = (width: number, height: number): ResponsiveSizes => {
@@ -61,6 +62,7 @@ const calculateSizes = (width: number, height: number): ResponsiveSizes => {
       md: Math.min(vw, vh) * 0.5,
       lg: Math.min(vw, vh) * 0.6,
     },
+    isLandscape
   };
 };
 

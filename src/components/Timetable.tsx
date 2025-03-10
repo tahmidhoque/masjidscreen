@@ -34,16 +34,6 @@ export function Timetable() {
 	const { orientation } = useScreenOrientation();
 	const isLandscape = orientation === "landscape-primary";
 
-	// Only log when timetable data actually changes
-	useEffect(() => {
-		console.log('Timetable data changed:', {
-			todayTimetable: state.todayTimetable?.Date,
-			tomoTimetable: state.tomoTimetable?.Date,
-			numEntries: state.timetableData?.length,
-			isLoading: state.isLoading
-		});
-	}, [state.todayTimetable?.Date, state.tomoTimetable?.Date, state.timetableData?.length, state.isLoading]);
-
 	const rowSX = useMemo(() => ({
 		padding: responsiveSizes.spacing.xs,
 		borderRadius: "20px",

@@ -31,7 +31,7 @@ interface AppState {
 	bannerMessage: string | null;
 	isLoading: boolean;
 	removePastDates: boolean;
-	countingJamaat?: boolean;
+	countingJamaat: boolean;
 }
 
 interface AppStateContextType {
@@ -58,6 +58,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
 		timetableData: null,
 		isLoading: true,
 		removePastDates: false,
+		countingJamaat: false,
 	});
 
 	// Memoize database instance
@@ -158,7 +159,10 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
 
 	// Action to update next prayer
 	const updateNextPrayer = useCallback((prayer: PrayerTime) => {
-		setState(prev => ({ ...prev, nextPrayer: prayer }));
+		setState(prev => ({
+			...prev,
+			nextPrayer: prayer
+		}));
 	}, []);
 
 	// Initial data load and periodic refresh
