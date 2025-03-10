@@ -182,10 +182,16 @@ export default function LandscapeLayout({ isLoading }: LandscapeLayoutProps) {
             <Box
                 sx={{
                     gridColumn: "1 / -1",
-                    height: "1rem",
+                    height: "3rem",
                     overflow: "hidden",
                     display: "flex",
                     alignItems: "center",
+                    marginTop: "auto",
+                    marginBottom: "5vh", // 5% of viewport height
+                    width: "95%",
+                    mx: "auto", // Center horizontally with margin
+                    borderRadius: "8px", // Rounded corners
+                    padding: "0.5rem" // Add some padding
                 }}
             >
                 <Banner />

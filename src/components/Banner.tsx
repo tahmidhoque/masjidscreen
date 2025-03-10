@@ -20,20 +20,21 @@ export default function Banner() {
 	return (
 		<>
 			{banner && (
-				<Marquee speed={50} gradient={false}>
+				<Marquee speed={50} gradient={false} style={{ height: "100%" }}>
 					<Box
 						component={"div"}
 						sx={{
 							"& p, & h1, & h2, & h3, & h4, & h5, & h6": {
 								margin: "0 !important",
-								fontSize: isLandscape ? "0.8rem !important" : "0.6rem !important",
+								fontSize: isLandscape ? "1.8rem !important" : "1.2rem !important",
 								color: "white !important",
-								lineHeight: "1.2 !important",
+								lineHeight: "1.5 !important",
 								fontWeight: "normal !important",
 							},
 							height: "100%",
 							display: "flex",
 							alignItems: "center",
+							px: 2,
 						}}
 						dangerouslySetInnerHTML={{
 							__html: banner,

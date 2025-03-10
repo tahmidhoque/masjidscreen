@@ -28,6 +28,7 @@ export default function PortraitLayout({ isLoading }: PortraitLayoutProps) {
                     flexDirection: "column",
                     overflow: "hidden",
                     padding: "1rem",
+                    paddingBottom: 0, // Remove bottom padding from main content
                 }}
             >
                 {/* Clock and Date Section - Fixed height for mobile */}
@@ -54,6 +55,7 @@ export default function PortraitLayout({ isLoading }: PortraitLayoutProps) {
                         gap: "12px",
                         overflow: "hidden",
                         px: 2,
+                        pb: 2, // Add bottom padding here
                     }}
                 >
                     {/* Timetable section */}
@@ -95,37 +97,59 @@ export default function PortraitLayout({ isLoading }: PortraitLayoutProps) {
                 </Box>
             </Box>
 
-            {/* Footer area */}
+            {/* Footer area with countdown and banner */}
             <Box
                 sx={{
                     display: "flex",
                     flexDirection: "column",
-                    justifyContent: "flex-end",
                     overflow: "hidden",
-                    padding: "0 1rem",
+                    marginTop: 2,
+                    position: "relative", // For absolute positioning of watermark
                 }}
             >
+                {/* Countdown section */}
                 <Box
                     sx={{
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        py: 0.5,
+                        py: 3,
                         overflow: "hidden",
+                        mb: 4, // Add margin between countdown and banner
                     }}
                 >
                     <CountdownTimer />
                 </Box>
+
+                {/* Banner section */}
                 <Box
                     sx={{
-                        height: "0.75rem",
+                        height: "2.5rem", // Increased height for larger text
                         overflow: "hidden",
                         display: "flex",
                         alignItems: "center",
-                        marginBottom: "0.5rem",
+                        marginBottom: "1.5rem",
+                        px: 2,
                     }}
                 >
                     <Banner />
+                </Box>
+
+                {/* Watermark */}
+                <Box
+                    sx={{
+                        position: "absolute",
+                        bottom: "0.5rem",
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        color: "rgba(255, 255, 255, 0.3)",
+                        fontSize: "0.7rem",
+                        textAlign: "center",
+                        width: "100%",
+                        pointerEvents: "none",
+                    }}
+                >
+                    Provided by Masjid Solutions
                 </Box>
             </Box>
         </Box>
