@@ -1,8 +1,7 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAppState } from "../providers/state";
 import moment from "moment";
-import { Box, Grid, Skeleton } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { Box, Grid } from "@mui/material";
 import IData from "../interfaces/IData";
 import useResponsiveSize from "../hooks/useResponsiveSize";
 
@@ -15,9 +14,6 @@ interface PrayerTime {
 	tomorrow: boolean;
 	countingJamaat: boolean;
 }
-
-type PrayerKey = "Fajr" | "Zuhr" | "Asr" | "Maghrib" | "Isha" | "Khutbah";
-type JamaatKey = "Fajr J" | "Zuhr J" | "Asr J" | "Maghrib J" | "Isha J" | "Khutbah J";
 
 export const getPrayerTime = (today: IData | null, tomorrow: IData | null): PrayerTime => {
 	if (!today || !tomorrow) {
@@ -35,12 +31,8 @@ export const getPrayerTime = (today: IData | null, tomorrow: IData | null): Pray
 	const prayers = ["Fajr", "Zuhr", "Asr", "Maghrib", "Isha"] as const;
 	const now = moment();
 
-	console.log("Current time:", now.format("HH:mm"));
-	console.log("Today's prayer times:", today);
-
 	// First check today's prayers
 	for (const prayer of prayers) {
-		// Convert from 12-hour to 24-hour format
 		const prayerDateTime = moment(today[prayer], ["h:mm A", "HH:mm"]).set({
 			year: now.year(),
 			month: now.month(),
@@ -52,19 +44,8 @@ export const getPrayerTime = (today: IData | null, tomorrow: IData | null): Pray
 			month: now.month(),
 			date: now.date()
 		});
-		
-		console.log(`\nChecking ${prayer}:`, {
-			now: now.format("HH:mm"),
-			prayerTime: prayerDateTime.format("HH:mm"),
-			jamaatTime: jamaatDateTime.format("HH:mm"),
-			rawPrayerTime: today[prayer],
-			rawJamaatTime: today[`${prayer} J`],
-			isPrayerAfterNow: now.isBefore(prayerDateTime),
-			isJamaatAfterNow: now.isBefore(jamaatDateTime)
-		});
 
 		if (now.isBefore(prayerDateTime) || now.isBefore(jamaatDateTime)) {
-			console.log(`Found next prayer: ${prayer}`);
 			return {
 				name: prayer,
 				time: today[prayer],
@@ -77,7 +58,6 @@ export const getPrayerTime = (today: IData | null, tomorrow: IData | null): Pray
 		}
 	}
 
-	console.log("No more prayers today, returning tomorrow's Fajr");
 	// If no more prayers today, return tomorrow's Fajr
 	return {
 		name: "Fajr",
@@ -105,29 +85,16 @@ export default function CountdownTimer({
 }) {
 	const { state, updateCountingJamaat, updateNextPrayer } = useAppState();
 	const [timeLeft, setTimeLeft] = useState("--:--:--");
-	const [nextPrayer, setNextPrayer] = useState<PrayerTime | null>({
-		name: "",
-		time: "",
-		jamaat: "",
-		jamaatTimeLeft: "",
-		timeLeft: "",
-		tomorrow: false,
-		countingJamaat: false,
-	});
 	const [isLoading, setIsLoading] = useState(true);
-	const navigate = useNavigate();
 	const responsiveSizes = useResponsiveSize();
-
-	const handleNavigation = useCallback((path: string) => {
-		navigate(path);
-	}, [navigate]);
+	const lastUpdateTime = useRef<number>(0);
 
 	// Initialize the prayer time as soon as state is available
 	useEffect(() => {
 		if (!state?.todayTimetable || !state?.tomoTimetable) return;
 		
 		const initialPrayer = getPrayerTime(state.todayTimetable, state.tomoTimetable);
-		setNextPrayer(initialPrayer);
+		updateNextPrayer(initialPrayer);
 		
 		// Calculate initial time left immediately
 		const prayerTime = moment(initialPrayer.time, ["h:mm A", "HH:mm"]).set({
@@ -146,68 +113,22 @@ export default function CountdownTimer({
 
 		setTimeLeft(initialTimeLeft);
 		setIsLoading(false);
-	}, [state?.todayTimetable, state?.tomoTimetable]);
+	}, [state?.todayTimetable, state?.tomoTimetable, updateNextPrayer]);
 
 	useEffect(() => {
-		if (!nextPrayer || !state) return;
+		if (!state.nextPrayer) return;
 
 		const interval = setInterval(() => {
-			//change page at certain times
-			if (nextPrayer.timeLeft === "00:00:00") {
-				if (
-					moment().isSameOrBefore(
-						moment(nextPrayer.time, ["h:mm A", "HH:mm"]).add(3, "minutes")
-					)
-				) {
-					handleNavigation("/adhaan");
-				}
-
-				if (nextPrayer.jamaatTimeLeft === "00:00:00") {
-					handleNavigation("/jamaat");
-				} else if (
-					moment(nextPrayer.jamaatTimeLeft, "HH:mm:ss").isSameOrBefore(
-						moment("00:05:00", "HH:mm:ss")
-					) &&
-					nextPrayer.name !== "Maghrib"
-				) {
-					handleNavigation("/jamaat-countdown");
-				}
-			}
-
-			if (
-				nextPrayer.timeLeft !== "00:00:00" &&
-				moment(nextPrayer.timeLeft, "HH:mm:ss").isSameOrBefore(
-					moment("00:05:00", "HH:mm:ss")
-				)
-			) {
-				handleNavigation("/adhaan-countdown");
-			}
-
-			if (
-				nextPrayer.jamaatTimeLeft === "00:00:00" &&
-				nextPrayer.timeLeft === "00:00:00"
-			) {
-				handleNavigation("/jamaat");
-			}
-
-			if (nextPrayer.jamaatTimeLeft === "00:00:00") {
-				// if time is 00:00:00, find next prayer
-				const foundPrayer = getPrayerTime(
-					state.todayTimetable,
-					state.tomoTimetable
-				);
-				setNextPrayer(foundPrayer);
-				updateNextPrayer(foundPrayer);
-				return;
-			}
+			const { nextPrayer } = state;
+			if (!nextPrayer) return;
 
 			const now = moment();
 
 			// update jamaat time left
 			const jamaatTime = moment(nextPrayer.jamaat, ["h:mm A", "HH:mm"]).set({
-				year: moment().year(),
-				month: moment().month(),
-				date: nextPrayer.tomorrow ? moment().date() + 1 : moment().date()
+				year: now.year(),
+				month: now.month(),
+				date: nextPrayer.tomorrow ? now.date() + 1 : now.date()
 			});
 			
 			const jamaatTimeLeftMinutes = jamaatTime.diff(now, "minutes") % 60;
@@ -219,9 +140,9 @@ export default function CountdownTimer({
 
 			//update adhaan time left
 			const prayerTime = moment(nextPrayer.time, ["h:mm A", "HH:mm"]).set({
-				year: moment().year(),
-				month: moment().month(),
-				date: nextPrayer.tomorrow ? moment().date() + 1 : moment().date()
+				year: now.year(),
+				month: now.month(),
+				date: nextPrayer.tomorrow ? now.date() + 1 : now.date()
 			});
 
 			const timeLeftMinutes = prayerTime.diff(now, "minutes") % 60;
@@ -234,28 +155,42 @@ export default function CountdownTimer({
 			const countingJamaat =
 				timeLeftMinutes <= 0 && timeLeftHours <= 0 && timeLeftSeconds <= 0;
 
-			const updatedPrayer = {
-				...nextPrayer,
-				timeLeft,
-				jamaatTimeLeft,
-				countingJamaat,
-			};
+			// Only update state every second
+			const currentTime = Date.now();
+			if (currentTime - lastUpdateTime.current >= 1000) {
+				lastUpdateTime.current = currentTime;
 
-			updateNextPrayer(updatedPrayer);
-			updateCountingJamaat(countingJamaat);
-			setNextPrayer(updatedPrayer);
+				// Only update if there are actual changes
+				const hasChanges = 
+					timeLeft !== nextPrayer.timeLeft ||
+					jamaatTimeLeft !== nextPrayer.jamaatTimeLeft ||
+					countingJamaat !== nextPrayer.countingJamaat;
 
+				if (hasChanges) {
+					const updatedPrayer = {
+						...nextPrayer,
+						timeLeft,
+						jamaatTimeLeft,
+						countingJamaat,
+					};
+
+					updateNextPrayer(updatedPrayer);
+					updateCountingJamaat(countingJamaat);
+				}
+			}
+
+			// Always update the displayed time
 			if (countingJamaat) {
 				setTimeLeft(jamaatTimeLeft);
 			} else {
 				setTimeLeft(timeLeft);
 			}
-		}, 1000);
+		}, 100); // Run more frequently but update state less often
 
 		return () => {
 			clearInterval(interval);
 		};
-	}, [nextPrayer, state, handleNavigation, updateCountingJamaat, updateNextPrayer]);
+	}, [state, updateCountingJamaat, updateNextPrayer]);
 
 	if (hide) return null;
 
@@ -271,8 +206,8 @@ export default function CountdownTimer({
 							transition: "opacity 0.3s ease-in-out"
 						}}
 					>
-						Time Till {nextPrayer?.name || "..."}{" "}
-						{nextPrayer?.countingJamaat ? "Jamaa'at" : ""}{" "}
+						Time Till {state.nextPrayer?.name || "..."}{" "}
+						{state.nextPrayer?.countingJamaat ? "Jamaa'at" : ""}{" "}
 					</Box>
 				</Grid>
 			)}
