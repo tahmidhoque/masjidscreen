@@ -148,8 +148,6 @@ class DatabaseHandler {
 		const timetable: PrayerTimesData[] = [];
 		const today = new Date();
 		
-		console.log('Generating future timetable starting from:', this.formatDate(today));
-		
 		for (let i = 0; i < days; i++) {
 			const date = new Date();
 			date.setDate(today.getDate() + i);
@@ -161,20 +159,16 @@ class DatabaseHandler {
 	}
 
 	public async getTimetable(): Promise<any> {
-		console.log('Getting timetable...');
 		try {
 			let timetable = [];
 			try {
-				console.log('Attempting to fetch from API with externalId:', this.externalId);
 				const response = await fetch(
 					`https://masjidsolutions.com/ms/api/getTimetable/${this.externalId}`
 				);
 				if (!response.ok) {
-					console.log('API response not ok:', response.status);
 					throw new Error(`HTTP error! status: ${response.status}`);
 				}
 				const responseData = await response.json();
-				console.log('Raw API response:', responseData);
 
 				// Parse the timetable data from the response
 				if (responseData && typeof responseData === 'object') {
@@ -187,11 +181,8 @@ class DatabaseHandler {
 					}
 				}
 
-				console.log('Parsed timetable data:', timetable);
-
 				// Validate timetable format and check for current dates
 				if (!Array.isArray(timetable)) {
-					console.log('Parsed data is not an array, generating new timetable...');
 					throw new Error('Invalid timetable format');
 				}
 
@@ -203,7 +194,6 @@ class DatabaseHandler {
 				});
 
 				if (!hasCurrentDates) {
-					console.log('No current or future dates found in timetable, generating new data...');
 					throw new Error('No current dates in timetable');
 				}
 
@@ -215,13 +205,10 @@ class DatabaseHandler {
 
 				// If we have less than 7 days of future dates, generate new timetable
 				if (timetable.length < 7) {
-					console.log('Less than 7 days of future dates available, generating new timetable...');
 					throw new Error('Insufficient future dates');
 				}
 
 			} catch (apiError) {
-				console.log('API data not usable:', apiError);
-				console.log('Generating new 30-day timetable...');
 				const newTimetable = this.generateFutureTimetable();
 				await this.setTimetable(newTimetable);
 				return newTimetable;
@@ -229,14 +216,12 @@ class DatabaseHandler {
 
 			// At this point we have a valid timetable with current dates
 			const todayStr = this.formatDate(new Date());
-			console.log('Looking for today\'s date:', todayStr);
 			
 			const todayData = timetable.find((entry: PrayerTimesData) => 
 				this.normalizeDate(entry.Date) === this.normalizeDate(todayStr)
 			);
 
 			if (!todayData) {
-				console.log('Today\'s data not found in filtered timetable, generating new data...');
 				const newTimetable = this.generateFutureTimetable();
 				await this.setTimetable(newTimetable);
 				return newTimetable;
@@ -250,7 +235,9 @@ class DatabaseHandler {
 			});
 
 		} catch (error) {
-			console.error('Error in getTimetable:', error);
+			if (process.env.NODE_ENV === 'development') {
+				console.error('Error in getTimetable:', error);
+			}
 			const newTimetable = this.generateFutureTimetable();
 			await this.setTimetable(newTimetable);
 			return newTimetable;
@@ -261,7 +248,6 @@ class DatabaseHandler {
 		const response = await fetch(
 			`https://masjidsolutions.com/ms/api/getHadith/${this.externalId}`
 		);
-
 		return response.json();
 	}
 
@@ -269,7 +255,6 @@ class DatabaseHandler {
 		const response = await fetch(
 			`https://masjidsolutions.com/ms/api/getBanner/${this.externalId}`
 		);
-
 		return response.json();
 	}
 
@@ -277,7 +262,6 @@ class DatabaseHandler {
 		const response = await fetch(
 			`https://masjidsolutions.com/ms/api/getAllData/${this.externalId}`
 		);
-
 		return response.json();
 	}
 
@@ -285,14 +269,13 @@ class DatabaseHandler {
 		const response = await fetch(
 			`https://masjidsolutions.com/ms/api/saveHadith/${this.externalId}`,
 			{
-				method: "POST", // or 'PUT'
+				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
 				},
-				body: JSON.stringify({ hadith }), // body data type must match "Content-Type" header
+				body: JSON.stringify({ hadith }),
 			}
 		);
-
 		return response.json();
 	}
 
@@ -300,29 +283,27 @@ class DatabaseHandler {
 		const response = await fetch(
 			`https://masjidsolutions.com/ms/api/saveBanner/${this.externalId}`,
 			{
-				method: "POST", // or 'PUT'
+				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
 				},
-				body: JSON.stringify({ banner }), // body data type must match "Content-Type" header
+				body: JSON.stringify({ banner }),
 			}
 		);
-
 		return response.json();
 	}
 
-	public async setTimetable(timetable: any[]): Promise<void> {
+	public async setTimetable(timetable: PrayerTimesData[]): Promise<void> {
 		const response = await fetch(
 			`https://masjidsolutions.com/ms/api/saveTimetable/${this.externalId}`,
 			{
-				method: "POST", // or 'PUT'
+				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
 				},
-				body: JSON.stringify({ timetable }), // body data type must match "Content-Type" header
+				body: JSON.stringify({ timetable }),
 			}
 		);
-
 		return response.json();
 	}
 }
