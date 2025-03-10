@@ -1,21 +1,22 @@
-import { Box, CircularProgress, Grid } from "@mui/material";
+import { Box, CircularProgress, useMediaQuery, useTheme } from "@mui/material";
 import useScreenOrientation from "../hooks/useScreenOrientation";
-import { Timetable } from "../components/Timetable";
-import Clock from "../components/Clock";
 import { useAppState } from "../providers/state";
 import useResponsiveSize from "../hooks/useResponsiveSize";
-import Date from "../components/Date";
-import CountdownTimer from "../components/CountdownTimer";
-import Hadith from "../components/Hadith";
-import Banner from "../components/Banner";
 import backgroundImage from "../assets/background-img.png";
+import LandscapeLayout from "../components/layouts/LandscapeLayout";
+import PortraitLayout from "../components/layouts/PortraitLayout";
 
 export default function Main() {
 	const { state } = useAppState();
 	const isLoading = state.isLoading;
 	const { orientation } = useScreenOrientation();
 	const responsiveSizes = useResponsiveSize();
+	const theme = useTheme();
+	const isTabletOrAbove = useMediaQuery(theme.breakpoints.up('sm'));
 	const isLandscape = orientation === "landscape-primary";
+
+	// Use landscape layout for tablet and above in landscape mode
+	const shouldUseLandscapeLayout = isLandscape && isTabletOrAbove;
 
 	return (
 		<Box 
@@ -49,141 +50,11 @@ export default function Main() {
 					<CircularProgress size={responsiveSizes.spacing.lg} />
 				</Box>
 			) : (
-				<Box
-					sx={{
-						height: "100%",
-						display: "flex",
-						flexDirection: "column",
-						overflow: "hidden",
-					}}
-				>
-					{/* Main content area with padding */}
-					<Box
-						sx={{
-							flex: 1,
-							display: "flex",
-							flexDirection: "column",
-							overflow: "hidden",
-							padding: "1rem",
-						}}
-					>
-						{/* Clock and Date Section - Fixed height for mobile */}
-						{!isLandscape && (
-							<Box 
-								sx={{ 
-									height: "15%",
-									py: 1,
-									display: "flex",
-									flexDirection: "column",
-									justifyContent: "center",
-									alignItems: "center",
-									overflow: "hidden",
-								}}
-							>
-								<Clock />
-								<Date />
-							</Box>
-						)}
-
-						<Box
-							sx={{
-								flex: 1,
-								display: "flex",
-								flexDirection: "column",
-								gap: "12px", // Fixed 12px gap
-								overflow: "hidden",
-								px: 2, // Consistent padding
-							}}
-						>
-							{/* Timetable section */}
-							<Box
-								sx={{
-									display: "flex",
-									flexDirection: "column",
-									overflow: "hidden",
-								}}
-							>
-								{/* Clock and Date only shown in landscape */}
-								{isLandscape && (
-									<Box 
-										sx={{ 
-											p: 1,
-											display: "flex",
-											flexDirection: "column",
-											justifyContent: "center",
-											alignItems: "center",
-											overflow: "hidden",
-										}}
-									>
-										<Clock />
-										<Date />
-									</Box>
-								)}
-								<Box 
-									sx={{ 
-										overflow: "hidden",
-									}}
-								>
-									<Timetable />
-								</Box>
-							</Box>
-
-							{/* Hadith section */}
-							<Box
-								sx={{
-									flex: 1,
-									minHeight: 0,
-									display: "flex",
-									flexDirection: "column",
-									overflow: "hidden",
-								}}
-							>
-								<Box 
-									sx={{ 
-										flex: 1,
-										overflow: "hidden",
-									}}
-								>
-									<Hadith />
-								</Box>
-							</Box>
-						</Box>
-					</Box>
-
-					{/* Footer area */}
-					<Box
-						sx={{
-							display: "flex",
-							flexDirection: "column",
-							justifyContent: "flex-end",
-							overflow: "hidden",
-							padding: "0 1rem",
-						}}
-					>
-						<Box
-							sx={{
-								display: "flex",
-								alignItems: "center",
-								justifyContent: "center",
-								py: 0.5,
-								overflow: "hidden",
-							}}
-						>
-							<CountdownTimer />
-						</Box>
-						<Box
-							sx={{
-								height: "0.75rem",
-								overflow: "hidden",
-								display: "flex",
-								alignItems: "center",
-								marginBottom: "0.5rem",
-							}}
-						>
-							<Banner />
-						</Box>
-					</Box>
-				</Box>
+				shouldUseLandscapeLayout ? (
+					<LandscapeLayout isLoading={isLoading} />
+				) : (
+					<PortraitLayout isLoading={isLoading} />
+				)
 			)}
 		</Box>
 	);

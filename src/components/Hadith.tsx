@@ -11,7 +11,9 @@ export default function Hadith() {
 	const responsiveSizes = useResponsiveSize();
 	const { orientation } = useScreenOrientation();
 	const isLandscape = orientation === "landscape-primary";
-	const { containerRef, contentRef, fontSize } = useTextFit(hadith);
+	const { containerRef, contentRef, fontSize } = useTextFit(hadith, {
+		maxFontSize: isLandscape ? 18 : 16,
+	});
 
 	useEffect(() => {
 		if (state.hadithOfTheDay) {
@@ -21,42 +23,85 @@ export default function Hadith() {
 
 	return (
 		<Box
-			ref={containerRef}
 			sx={{
-				textAlign: "center",
-				height: "100%",
 				display: "flex",
 				flexDirection: "column",
-				overflow: "hidden",
+				alignItems: "center",
+				height: "100%",
+				position: "relative",
+				textAlign: "center",
 			}}
 		>
-			<Typography
-				variant="h2"
+			<Box
+				ref={containerRef}
 				sx={{
-					marginBottom: 1,
-					fontSize: isLandscape
-						? responsiveSizes.fontSize.h2
-						: responsiveSizes.fontSize.h3,
+					position: "absolute",
+					top: "50%",
+					transform: "translateY(-50%)",
+					display: "flex",
+					flexDirection: "column",
+					alignItems: "center",
+					maxHeight: "calc(100% - 32px)",
+					textAlign: "center",
+					width: { xs: "calc(100% - 96px)", sm: "calc(100% - 128px)", md: "calc(100% - 160px)" },
+					mx: "auto",
 				}}
 			>
-				Hadith of the Day
-			</Typography>
-			<Box
-				ref={contentRef}
-				sx={{
-					flex: 1,
-					overflow: "hidden",
-					fontSize: `${fontSize}px`,
-					"& p": {
-						margin: 0,
-						color: "white",
-					},
-				}}
-				component={"div"}
-				dangerouslySetInnerHTML={{
-					__html: hadith,
-				}}
-			/>
+				<Typography
+					variant="h2"
+					sx={{
+						mb: 2,
+						fontSize: isLandscape
+							? responsiveSizes.fontSize.h3
+							: responsiveSizes.fontSize.h6,
+						fontWeight: 500,
+						textAlign: "center",
+						width: "100%",
+					}}
+				>
+					Hadith of the Day
+				</Typography>
+
+				<Box
+					ref={contentRef}
+					sx={{
+						width: "100%",
+						display: "flex",
+						flexDirection: "column",
+						alignItems: "center",
+						justifyContent: "center",
+						textAlign: "center",
+						"& > div": {
+							width: "100%",
+							maxWidth: "85%",
+							fontSize: `${fontSize}px`,
+							textAlign: "center !important",
+							display: "flex",
+							flexDirection: "column",
+							alignItems: "center",
+							mx: "auto",
+							"& *": {
+								textAlign: "center !important",
+								margin: "0 auto !important",
+								width: "100% !important",
+								maxWidth: "100% !important",
+								display: "block !important",
+							},
+							"& p, & div, & h1, & h2, & h3, & h4, & h5, & h6, & span": {
+								marginBottom: 1.5,
+								lineHeight: 1.4,
+							},
+							"& p:last-child": {
+								marginBottom: 0,
+							},
+						}
+					}}
+					component={"div"}
+					dangerouslySetInnerHTML={{
+						__html: hadith,
+					}}
+				/>
+			</Box>
 		</Box>
 	);
 }

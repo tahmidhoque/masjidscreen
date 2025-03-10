@@ -1,9 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
+import useScreenOrientation from './useScreenOrientation';
 
-export const useTextFit = (content: string) => {
+interface TextFitOptions {
+    maxFontSize?: number;
+}
+
+export const useTextFit = (content: string, options: TextFitOptions = {}) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const contentRef = useRef<HTMLDivElement>(null);
-    const [fontSize, setFontSize] = useState(16); // Start with default size
+    const [fontSize, setFontSize] = useState(10);
+    const { orientation } = useScreenOrientation();
+    const isLandscape = orientation === "landscape-primary";
 
     useEffect(() => {
         const container = containerRef.current;
@@ -14,13 +21,18 @@ export const useTextFit = (content: string) => {
             const containerHeight = container.clientHeight;
             const containerWidth = container.clientWidth;
             
-            // Start with a larger font size
-            let currentSize = 20;
+            // Determine if we're on a smaller device based on container width
+            const isSmallDevice = containerWidth < 500;
+            
+            // Start with a smaller font size
+            let currentSize = isSmallDevice ? 10 : (isLandscape ? 14 : 12);
             content.style.fontSize = `${currentSize}px`;
 
             // Binary search for the best fitting font size
-            let min = 8;  // Minimum readable size
-            let max = 40; // Maximum reasonable size
+            let min = isSmallDevice ? 8 : 10;  // Minimum for iPad Mini
+            let max = isSmallDevice 
+                ? (isLandscape ? 12 : 10)  // Max for iPad Mini
+                : (options.maxFontSize || (isLandscape ? 18 : 16)); // Normal max for larger devices
 
             while (min <= max) {
                 currentSize = Math.floor((min + max) / 2);
@@ -34,7 +46,8 @@ export const useTextFit = (content: string) => {
             }
 
             // Set the final size slightly smaller to ensure no overflow
-            setFontSize(max);
+            const finalSize = Math.min(max - 1, options.maxFontSize || (isLandscape ? 18 : 16));
+            setFontSize(finalSize);
         };
 
         fitText();
@@ -46,7 +59,7 @@ export const useTextFit = (content: string) => {
         return () => {
             resizeObserver.disconnect();
         };
-    }, [content]); // Rerun when content changes
+    }, [content, isLandscape, options.maxFontSize]);
 
     return { containerRef, contentRef, fontSize };
 }; 

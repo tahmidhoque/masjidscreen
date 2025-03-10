@@ -22,24 +22,24 @@ const calculateSizes = (width: number, height: number): ResponsiveSizes => {
   
   // Increased base size for better readability
   const baseSize = isLandscape 
-    ? Math.min(height * 0.003, width * 0.0015) 
-    : Math.min(width * 0.003, height * 0.0015);
+    ? Math.min(height * 0.0025, width * 0.001)
+    : Math.min(width * 0.0025, height * 0.001);
 
   // Adjusted scale factors for better readability while maintaining hierarchy
   const scaleFactor = isLandscape ? {
-    h1: 1.5,
-    h2: 1.3,
-    h3: 1.2,
-    h6: 1.1,
-    body1: 1,
-    body2: 0.9
-  } : {
     h1: 1.4,
-    h2: 1.3,
-    h3: 1.2,
-    h6: 1.1,
-    body1: 1,
-    body2: 0.9
+    h2: 1.2,
+    h3: 1.1,
+    h6: 1.0,
+    body1: 0.9,
+    body2: 0.8
+  } : {
+    h1: 1.3,
+    h2: 1.2,
+    h3: 1.1,
+    h6: 1.0,
+    body1: 0.9,
+    body2: 0.8
   };
 
   // Adjusted spacing units for better layout
